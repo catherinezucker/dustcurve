@@ -1,4 +1,4 @@
 import numpy as np
 
 def fillerfunc():
-    return 2+2
+    return "This is a filler function"
