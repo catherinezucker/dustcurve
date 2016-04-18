@@ -1,3 +1,5 @@
+import h5py
+
 class PixStars:
 	def __init__(self, fname=None, pix=None):
 		f = None
