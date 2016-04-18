@@ -4,7 +4,7 @@ class PixStars:
 		close = False
 		
 		if fname != None:
-			if type(dset) != str:
+			if type(pix) != str:
 				raise TypeError("If 'fname' is provided, 'dset' must be "
 				                "a string containing the name of the dataset.")
 			if type(fname) == h5py._hl.files.File:
@@ -37,7 +37,7 @@ class PixStars:
 		if imgIdx == None:
 			return self.co
 		else:
-			return self.p[imgIdx]
+			return self.co[imgIdx]
 	
 	def get_n_stars(self):
 		return self.nImages
