@@ -1,7 +1,7 @@
 # dustcurve:
 
 Update on progress as of April 18th, 2016: 
-- Wrote code to repackage all the data from Odyssey into a new, more convenient file for running the MCMC calculations. Ran the code to produce "testdata.h5," which contains the stellar posteriors and the co intensities for all the stars in a small area on the sky (56 stars total). This data is 19 MB (sorry!) but it was the smallest convenient data package I could produce. The test data is now stored in the root directory. 
+- Wrote code to repackage all the data from Odyssey into a new, more convenient file for running the MCMC calculations. Ran the code to produce "testdata.h5," which contains the stellar posteriors and the co intensities for all the stars in a small pixel on the sky (56 stars total). This data is 19 MB (sorry!) but it was the smallest convenient data package I could produce. The test data is now stored in the root directory. 
 - Created a class "PixStars" to hold the data from my hdf5 file, including both the CO intensity array and the stellar posterior array for all the stars in a single pixel on the sky
 - Created a test for the PixStars class and ensured it ran successfully from my root directory with nosetests
 - Having a separate io module is really unnecessary at the moment due to how I'm setting up my data in the PixStars class. All you need to do to load your data at the moment is send PixStars the strings containing the file name and pixel of interest within that file name, and you have the data loaded in one line.  Once I add more and more pixels, I'll probably add in an io module, but I wanted to simplify things as much as possible to work through my bugs
