@@ -16,11 +16,11 @@ def get_line_integral(co_array, post_array, dist_array, coeff_array):
     dbins, redbins=convert_to_bins(co_array, post_array, dist_array, coeff_array)
     probpath, dpath=flatten_prob_path(post_array,dbins,redbins)
     
-    psum=0
+    psum=0.0
     for i in range(0,120):
         if dpath[0] >= i:
             psum+=np.sum(probpath[0:np.where(dpath==i)[0][0]])
-    return np.log(psum) 
+    return psum
         
 def convert_to_bins(co_array, post_array, dist_array, coeff_array):
     """
@@ -39,7 +39,7 @@ def convert_to_bins(co_array, post_array, dist_array, coeff_array):
     dbins=dbins.astype(int)
     
     #convert co intensities to reddenings using gas-to-dust coefficients
-    red_array=np.prod(co_array, coeff_array)
+    red_array=np.multiply(co_array, coeff_array)
     red_array=np.cumsum(red_array)   
     
     #convert actual cumulative reddening to a reddening bin in the stellar posterior array 
@@ -60,13 +60,14 @@ def flatten_prob_path(post_array, dbins, redbins):
         rbins: an array of bin indicies in post_array corresponding to the reddening to each velocity slice 
     """
     nslices=12
-    probpath==np.array([])
-    dpath==np.array([])
+    probpath=np.array([0])
+    dpath=np.array([0])
     #flatten the reddening profile along the reddening axis 
     #store the probability and distance bins corresponding to each reddening "ledge" 
     for i in range(0, nslices-1):
-        probpath.append(post_array[dbins[i]:dbins[i+1],redbins[i]])
-        dpath.append(np.arange(dbins[i], dbins[i+1]+0.01, 1))
+        probpath=np.hstack((probpath, post_array[dbins[i]:dbins[i+1],redbins[i]]))
+        #dpath=np.hstack((dpath,np.arange(dbins[i],dbins[i+1]+0.01, 1)))
+        dpath.np.ones(len(probpath))
     return probpath.flatten(), dpath.flatten()
 
 
@@ -99,11 +100,11 @@ def log_likelihood(theta, co_array, post_array, nstars):
     d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12 = theta
     coeff_array=np.ones((12))
     dist_array=np.array([d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12])
-    probpix=np.zeros(nstars)
+    probpix=np.zeros((nstars))
     for i in range(0,nstars):
-        probpix[i]=get_line_integral(co_array, post_array, dist_array, coeff_array)
+        probpix[i]=np.log(get_line_integral(co_array[i,:], post_array[i,:,:], dist_array, coeff_array))
     probpix=np.sum(probpix)
-    return(probpix)
+	return(probpix)    
 
 def log_posterior(theta, pixel):
     """
