@@ -66,8 +66,7 @@ def flatten_prob_path(post_array, dbins, redbins):
     #store the probability and distance bins corresponding to each reddening "ledge" 
     for i in range(0, nslices-1):
         probpath=np.hstack((probpath, post_array[dbins[i]:dbins[i+1],redbins[i]]))
-        #dpath=np.hstack((dpath,np.arange(dbins[i],dbins[i+1]+0.01, 1)))
-        dpath.np.ones(len(probpath))
+        dpath=np.hstack((dpath,np.arange(dbins[i],dbins[i+1]+0.01, 1)))
     return probpath.flatten(), dpath.flatten()
 
 
@@ -95,7 +94,7 @@ def log_likelihood(theta, co_array, post_array, nstars):
     
     Parameters:
         theta: model parameters (specified as a tuple)
-        PixStars: Holds all the stellar posteriors and CO emission for all the stars in a single pixel 
+        pixel: a string representing the pixel within the hdf5 file we're pulling data from
     """
     d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12 = theta
     coeff_array=np.ones((12))
@@ -112,7 +111,7 @@ def log_posterior(theta, pixel):
     
     Parameters:
         theta: model parameters (specified as a tuple)
-        PixStars: Holds all the stellar posteriors and CO emission for all the stars in a single pixel 
+        pixel: a string representing the pixel within the hdf5 file we're pulling data from
     """
     pixObj=pixclass.PixStars('testdata.h5', pixel)
     co_array=np.asarray(pixObj.get_co()[:,:])
