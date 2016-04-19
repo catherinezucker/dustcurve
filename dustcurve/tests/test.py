@@ -1,9 +1,13 @@
 
 from unittest import TestCase
+import unittest
+from dustcurve import pixclass 
 
-import dustcurve
+# Test PixStars Class
 
-class TestFillerFunc(TestCase):
-    def test_is_string(self):
-        s = dustcurve.fillerfunc()
-        self.assertTrue(isinstance(s, str))
+class PixStarsTestCase(unittest.TestCase): 
+   def TestPixStars(self):
+      """Tests PixClass class"""
+      #Create PixClass object
+      pixObj = PixClass('testdata.h5', 'pixel 1024-5753839')
+      # Is the stellar posterior array the right shape? 
