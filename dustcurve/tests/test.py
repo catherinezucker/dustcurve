@@ -12,6 +12,7 @@ class PixStarsTestCase(unittest.TestCase):
       pixTest = PixClass('testdata.h5', 'pixel 1024-5753839')
       # Is the stellar posterior array the right shape? 
       self.assertTrue(pixTest.get_p()[0,:,:].shape==(120,700))
+      
 if __name__ == '__main__':
     unittest.main()
 
