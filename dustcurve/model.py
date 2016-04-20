@@ -100,7 +100,7 @@ def log_likelihood(theta, co_array, post_array, nstars):
     dist_array=np.sort(dist_array, axis=0)
     probpix=np.zeros((nstars))
     for i in range(0,nstars):
-        probpix[i]=get_line_integral(co_array[i,:], post_array[i,:,:], dist_array, coeff_array)
+        probpix[i]=np.log(get_line_integral(co_array[i,:], post_array[i,:,:], dist_array, coeff_array))
     probpix=np.sum(probpix)
     return(probpix)    
 
