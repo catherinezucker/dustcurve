@@ -12,7 +12,9 @@ setup(name='dustcurve',
           'numpy',
           'matplotlib',
           'emcee',
-          'scipy'
+          'scipy',
+          'healpy',
+          'h5py'
       ],
       test_suite='nose.collector',
       tests_require=['nose'],
