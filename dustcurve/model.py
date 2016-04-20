@@ -5,7 +5,7 @@ from dustcurve import pixclass
 
 def get_line_integral(co_array, post_array, dist_array, coeff_array):
     """
-    returns log of the line integral over stellar posterior for individual star 
+    returns line integral over stellar posterior for individual star 
     
     Parameters:
         co_array: array of CO intensities (ndim=nslices) for an individual star 
@@ -14,11 +14,8 @@ def get_line_integral(co_array, post_array, dist_array, coeff_array):
         coeff_array: array of dust-to-gas coefficients for the slices from MCMC
     """
     dbins, redbins=convert_to_bins(co_array, post_array, dist_array, coeff_array)
-    probpath, dpath=flatten_prob_path(post_array,dbins,redbins)
-    psum=0.0
-    for i in range(dpath[0], dpath[-1]):
-            psum+=np.sum(probpath[0:int(np.where(dpath==i)[0])])
-    return psum
+    probpath=flatten_prob_path(post_array,dbins,redbins)
+    return np.sum(probpath) 
         
 def convert_to_bins(co_array, post_array, dist_array, coeff_array):
     """
@@ -58,14 +55,14 @@ def flatten_prob_path(post_array, dbins, redbins):
         rbins: an array of bin indicies in post_array corresponding to the reddening to each velocity slice 
     """
     nslices=12
-    probpath=np.array([])
-    dpath=np.array([])
+    probpath=np.array([post_array[0:dbins[0],redbins[0]])
     #flatten the reddening profile along the reddening axis 
-    #store the probability and distance bins corresponding to each reddening "ledge" 
+    #store the probability bins corresponding to each reddening "ledge" 
     for i in range(0, nslices-1):
         probpath=np.append(probpath, post_array[dbins[i]:dbins[i+1],redbins[i]])
         dpath=np.append(dpath,np.arange(dbins[i],dbins[i+1], 1))
-    return probpath.flatten(), dpath.flatten().astype(int)
+    probpath=np.append(probpath, post_array[dbins[-1]:119,redbins[-1]])
+    return probpath.flatten() 
 
 
 def log_prior(theta):
@@ -80,12 +77,11 @@ def log_prior(theta):
     nslices=12    
     #check to make sure each d is within the range specified by prior; if not, return -np.inf
     for i in range(0,nslices):
-        if theta[i] < 4 or theta[i] > 19: 
+        if theta[i] < 8 or theta[i] > 12: 
               return -np.inf 
-    #else return 0.0 
+    #else return 0 
     return 0.0
 
-    
 def log_likelihood(theta, co_array, post_array, nstars):
     """
     returns log of likelihood for all the stars in a single pixel
