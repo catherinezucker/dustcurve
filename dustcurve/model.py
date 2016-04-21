@@ -78,7 +78,7 @@ def log_prior(theta):
     #check to make sure each d is within the range specified by prior; if not, return -np.inf
     dcheck=np.array([d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12])
     for i in range(0,nslices):
-        if dcheck[i] < 8 or dcheck[i] > 12: 
+        if dcheck[i] < 4 or dcheck[i] > 19: 
               return -np.inf 
     #else return 0 
     return 0.0
@@ -99,6 +99,7 @@ def log_likelihood(theta, co_array, post_array, nstars):
     for i in range(0,nstars):
         probpix[i]=np.log(get_line_integral(co_array[i,:], post_array[i,:,:], dist_array, coeff_array))
     probpix=np.sum(probpix)
+    print(probpix)
     return(probpix)    
 
 def log_posterior(theta,fname,pixel):
