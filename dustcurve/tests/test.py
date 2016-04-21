@@ -2,7 +2,8 @@
 from unittest import TestCase
 import unittest
 from dustcurve import pixclass
-from dustcurve import model 
+from dustcurve import model
+import numpy as np
 
 # Test PixStars Class
 
