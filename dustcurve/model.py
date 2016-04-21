@@ -102,7 +102,7 @@ def log_likelihood(theta, co_array, post_array, nstars):
     probpix=np.sum(probpix)
     return(probpix)    
 
-def log_posterior(theta, pixel):
+def log_posterior(theta,fname,pixel):
     """
     returns log of posterior probability distribution for all the stars in a single pixel 
     
@@ -110,7 +110,7 @@ def log_posterior(theta, pixel):
         theta: model parameters (specified as a tuple)
         pixel: a string representing the pixel within the hdf5 file we're pulling data from
     """
-    pixObj=pixclass.PixStars('testdata.h5', pixel)
+    pixObj=pixclass.PixStars(fname,pixel)
     co_array=np.asarray(pixObj.get_co()[:,:])
     post_array=np.asarray(pixObj.get_p()[:,:,:])
     nstars=pixObj.get_n_stars()
