@@ -13,8 +13,7 @@ nwalkers = 100
 nsteps = 1000
 
 # set up the walkers in a "Gaussian ball" around the literature estimate for distance to Cepheus cloud (distance mod=10)
-#ls_result = np.arange(4,16,1)
-ls_result=np.arange(4,16,1)
+ls_result=np.arange(8,12,.35)
 starting_positions = [ls_result + 1e-4*np.random.randn(ndim) for i in range(nwalkers)]
 
 # set up the sampler object
@@ -34,8 +33,6 @@ plt.plot(sampler.chain[:, :, 0].T, color="k", alpha=0.3)
 plt.axhline(F_true, color='#4682b4')
 plt.ylabel('Parameter 1')
 plt.xlabel('Number of Steps')
-
-
 
 
 fig, (ax_d1, ax_d2) = plt.subplots(2)
