@@ -9,8 +9,8 @@ import matplotlib.pyplot as plt
 
 # the model has 12 parameters; we'll use 50 walkers and 500 steps each
 ndim = 12
-nwalkers = 24
-nsteps = 100
+nwalkers = 100
+nsteps = 1000
 
 # set up the walkers in a "Gaussian ball" around the literature estimate for distance to Cepheus cloud (distance mod=10)
 #ls_result = np.arange(4,16,1)
@@ -25,6 +25,18 @@ sampler = emcee.EnsembleSampler(nwalkers, ndim, model.log_posterior, args=['pixe
 sampler.run_mcmc(starting_positions, nsteps)
 
 print('Done')
+
+# Burn off initial steps
+samples = sampler.chain[:, 500:, :].reshape((-1, ndim))
+
+# Plot traces to see how much you need to burn off, and to check for convergence 
+plt.plot(sampler.chain[:, :, 0].T, color="k", alpha=0.3)
+plt.axhline(F_true, color='#4682b4')
+plt.ylabel('Parameter 1')
+plt.xlabel('Number of Steps')
+
+
+
 
 fig, (ax_d1, ax_d2) = plt.subplots(2)
 ax_d1.set(ylabel='d1')
