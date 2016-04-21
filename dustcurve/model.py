@@ -80,6 +80,7 @@ def log_prior(theta):
     for i in range(0,nslices):
         if dcheck[i] < 4 or dcheck[i] > 19: 
               return -np.inf 
+    print(d7,d11)
     #else return 0 
     return 0.0
 
