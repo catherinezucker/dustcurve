@@ -62,7 +62,6 @@ def flatten_prob_path(post_array, dbins, redbins):
     probpath=np.array([post_array[0:dbins[0],0]]) # first reddening ledge; assume no extinction before first distance bin
     for i in range(0, nslices-1):
         probpath=np.append(probpath, post_array[dbins[i]:dbins[i+1],redbins[i]])
-        print(post_array[dbins[i]:dbins[i+1],redbins[i]])
     probpath=np.append(probpath, post_array[dbins[-1]:119,redbins[-1]]) #reddening ledge from last distance bin to end of posterior array
     return probpath.flatten() 
 
