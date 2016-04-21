@@ -37,7 +37,7 @@ class ModelLineIntegralTestCase(unittest.TestCase):
       post_array[77:80,275]=1
       post_array[80:-1,300]=1
       #test that the value of the integral over the stellar posterior array is 1 for this specific test case
-      self.assertTrue(model.get_line_integral(get_line_integral(co_array,post_array,dist_array,coeff_array)==119.0)
+      self.assertTrue(model.get_line_integral(get_line_integral(co_array,post_array,dist_array,coeff_array)==119.0))
       
 if __name__ == '__main__':
     unittest.main()
