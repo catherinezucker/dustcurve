@@ -72,13 +72,13 @@ parameter_samples = pd.DataFrame({'d1': traces[0], 'd2': traces[1], 'd3': traces
 
 q = parameter_samples.quantile([0.16,0.50,0.84], axis=0)
 
-for i in range(1,13):
-	print("d%i = {:.2f} + {:.2f} - {:.2f}".format(q['d%i'][0.50], 
-                                            	q['d%i'][0.84]-q['d%i'][0.50],
-                                            	q['d%i'][0.50]-q['d%i'][0.16]) % (i,i,i,i,i))
-
-print("d%i = {:.2f} + {:.2f} - {:.2f}".format(q['d7'][0.50], 
-                                            	q['d7'][0.84]-q['d7'][0.50],
-                                            	q['d7'][0.50]-q['d7'][0.16]))
+#for i in range(1,13):
+#	print("d%i = {:.2f} + {:.2f} - {:.2f}".format(q['d%i'][0.50], 
+#                                            	q['d%i'][0.84]-q['d%i'][0.50],
+#                                            	q['d%i'][0.50]-q['d%i'][0.16]) % (i,i,i,i,i))
+#
+#print("d%i = {:.2f} + {:.2f} - {:.2f}".format(q['d7'][0.50], 
+#                                            	q['d7'][0.84]-q['d7'][0.50],
+#                                            	q['d7'][0.50]-q['d7'][0.16]))
                                                            
 plt.show()
