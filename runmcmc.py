@@ -25,16 +25,8 @@ sampler.run_mcmc(starting_positions, nsteps)
 
 print('Done')
 
-# Burn off initial steps
-samples = sampler.chain[:, 100:, :].reshape((-1, ndim))
-
 # Plot traces to see how much you need to burn off, and to check for convergence 
-plt.plot(sampler.lchain[:, :, 0].T, color="k", alpha=0.3)
-plt.axhline(F_true, color='#4682b4')
-plt.ylabel('Parameter 1')
-plt.xlabel('Number of Steps')
-
-fig, (ax_d1, ax_d2) = plt.subplots(12)
+fig, (ax_d1, ax_d2, ax_d3, ax_d4, ax_d5, ax_d6, ax_d7, ax_d8, ax_d9, ax_d10, ax_d11, ax_d12) = plt.subplots(12)
 
 ax_d1.set(ylabel='d1')
 ax_d2.set(ylabel='d2')
@@ -62,6 +54,9 @@ for i in range(10):
     sns.tsplot(sampler.chain[i,:,9], ax=ax_d10)
     sns.tsplot(sampler.chain[i,:,10], ax=ax_d11)
     sns.tsplot(sampler.chain[i,:,11], ax=ax_d12)
+    
+# Burn off initial steps
+samples = sampler.chain[:, 100:, :].reshape((-1, ndim))
     
 traces = samples.reshape(-1, ndim).T
 
