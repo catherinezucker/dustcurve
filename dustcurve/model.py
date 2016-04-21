@@ -45,9 +45,8 @@ def convert_to_bins(co_array, dist_array, coeff_array):
 def flatten_prob_path(post_array, dbins, redbins):
     """
     returns: 
-    probpath: an array of probabilities flattened along the reddening axis 
-    dpath: the distance bins corresponding to each reddening "ledge"
-             
+    probpath: an array of probabilities flattened along the reddening axis, defined by the reddening profile
+                 
     Parameters:
         post_array: 700x120 stellar posterior array for an individual star
          dbins: an array of bin indices in post_array corresponding to the distances to each velocity slice 
