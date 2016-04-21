@@ -6,6 +6,7 @@ from dustcurve import model
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
+import pandas as pd
 
 # the model has 12 parameters; we'll use 50 walkers and 500 steps each
 ndim = 12
