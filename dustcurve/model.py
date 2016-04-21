@@ -35,7 +35,10 @@ def convert_to_bins(co_array, dist_array, coeff_array):
     #convert co intensities to reddenings using gas-to-dust coefficients
     red_array=np.multiply(co_array, coeff_array)
     red_array=np.cumsum(red_array)
-    red_array=red_array.clip(min=0) #if any of the extinction values are negative (due to negative CO intensities, set to zero) 
+    
+    #clip reddening values if too high or too low (to fit within bounds of stellar posterior array, with range 0-7 mags
+    red_array=red_array.clip(min=0) #if any of the reddening values are negative (due to negative CO intensities, set to zero)
+    red_array=red_array.clip(max=7) #if any of the reddening values are > 7 magnitudes, set to 7, because this is the max value our reddening axis in stellar posterior can hold
     
     #convert actual cumulative reddening to a reddening bin in the stellar posterior array 
     rmin, dr=(0.0, 0.01)
