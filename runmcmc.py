@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 
 # the model has 12 parameters; we'll use 50 walkers and 500 steps each
 ndim = 12
-nwalkers = 100
+nwalkers = 50
 nsteps = 1000
 
 # set up the walkers in a "Gaussian ball" around the literature estimate for distance to Cepheus cloud (distance mod=10)
