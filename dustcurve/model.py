@@ -13,18 +13,17 @@ def get_line_integral(co_array, post_array, dist_array, coeff_array):
         dist_array: array of distances to the slices from MCMC
         coeff_array: array of dust-to-gas coefficients for the slices from MCMC
     """
-    dbins, redbins=convert_to_bins(co_array, post_array, dist_array, coeff_array)
+    dbins, redbins=convert_to_bins(co_array, dist_array, coeff_array)
     probpath=flatten_prob_path(post_array,dbins,redbins)
     return np.sum(probpath) 
         
-def convert_to_bins(co_array, post_array, dist_array, coeff_array):
+def convert_to_bins(co_array, dist_array, coeff_array):
     """
     returns: dbins= an array of bin indices in post_array corresponding to the distances to each velocity slice 
              rbins= an array of bin indices in post_array corresponding to the reddening to each velocity slice 
              
     Parameters:
         co_array: array of CO intensities (ndim=nslices) for an individual star 
-        post_array: 700x120 stellar posterior array for an individual star
         dist_array: array of distances to the slices from MCMC
         coeff_array: array of dust-to-gas coefficients for the slices from MCMC
     """
@@ -55,15 +54,14 @@ def flatten_prob_path(post_array, dbins, redbins):
         rbins: an array of bin indicies in post_array corresponding to the reddening to each velocity slice 
     """
     nslices=12
-    probpath=np.array([post_array[0:dbins[0],redbins[0]])
     #flatten the reddening profile along the reddening axis 
     #store the probability bins corresponding to each reddening "ledge" 
+    probpath=np.array([post_array[0:dbins[0],0]]) # first reddening ledge; assume no extinction before first distance bin
     for i in range(0, nslices-1):
         probpath=np.append(probpath, post_array[dbins[i]:dbins[i+1],redbins[i]])
-        dpath=np.append(dpath,np.arange(dbins[i],dbins[i+1], 1))
-    probpath=np.append(probpath, post_array[dbins[-1]:119,redbins[-1]])
+        print(post_array[dbins[i]:dbins[i+1],redbins[i]])
+    probpath=np.append(probpath, post_array[dbins[-1]:119,redbins[-1]]) #reddening ledge from last distance bin end of posterior array
     return probpath.flatten() 
-
 
 def log_prior(theta):
     """
@@ -76,8 +74,9 @@ def log_prior(theta):
     d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12 = theta 
     nslices=12    
     #check to make sure each d is within the range specified by prior; if not, return -np.inf
+    dcheck=np.array([d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12])
     for i in range(0,nslices):
-        if theta[i] < 8 or theta[i] > 12: 
+        if dcheck[i] < 8 or dcheck[i] > 12: 
               return -np.inf 
     #else return 0 
     return 0.0
