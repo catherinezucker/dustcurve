@@ -63,6 +63,8 @@ traces = samples.reshape(-1, ndim).T
 
 parameter_samples = pd.DataFrame({'d1': traces[0], 'd2': traces[1], 'd3': traces[2], 'd4': traces[3], 'd5': traces[4], 'd6': traces[5], 'd7': traces[6], 'd8': traces[7], 'd9': traces[8], 'd10': traces[9], 'd11': traces[10], 'd12': traces[11]})
 
+q = parameter_samples.quantile([0.16,0.50,0.84], axis=0)
+
 for i in range(1,13):
 	print("d%i = {:.2f} + {:.2f} - {:.2f}".format(q['d%i'][0.50], 
                                             	q['d%i'][0.84]-q['d%i'][0.50],
