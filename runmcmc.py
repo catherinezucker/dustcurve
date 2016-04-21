@@ -10,21 +10,21 @@ import pandas as pd
 
 # the model has 12 parameters; we'll use 50 walkers and 500 steps each
 ndim = 12
-nwalkers = 50
+nwalkers = 24
 nsteps = 500
 
 # set up the walkers in a "Gaussian ball" around the literature estimate for distance to Cepheus cloud (distance mod=10)
 
-ls_result=np.linspace(4,19,12)
-#starting_positions = [ls_result + 1e-4*np.random.randn(ndim) for i in range(nwalkers)]
+ls_result=[4.5,4.6,5,5.1,6.2,7.0,7.75,8.0,9,12,14,16]
+starting_positions = [ls_result + 1e-4*np.random.randn(ndim) for i in range(nwalkers)]
 
-starting_positions = [ls_result + 1e-4*np.random.randn(ndim)]
+#starting_positions = [ls_result + 1e-4*np.random.randn(ndim)]
 
 # set up the sampler object
-#sampler = emcee.EnsembleSampler(nwalkers, ndim, model.log_posterior, args=('simulated_data.h5', 'pixel0000'))
+sampler = emcee.EnsembleSampler(nwalkers, ndim, model.log_posterior, args=('simulated_data.h5', 'pixel0000'))
 
-cov=np.eye(12)
-sampler = emcee.MHSampler(cov,ndim, model.log_posterior, args=('simulated_data.h5', 'pixel0000'))
+#cov=np.eye(12)
+#sampler = emcee.MHSampler(cov,ndim, model.log_posterior, args=('simulated_data.h5', 'pixel0000'))
 
                                 
 # run the sampler. We use iPython's %time directive to tell us 
