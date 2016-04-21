@@ -16,7 +16,7 @@ nsteps = 500
 # set up the walkers in a "Gaussian ball" around the literature estimate for distance to Cepheus cloud (distance mod=10)
 
 #ls_result=[4.5,4.6,5,5.1,6.2,7.0,7.75,8.0,9,12,14,16]
-ls_result=[5.0, 5.5, 6.0, 6.5, 7.0, 8.0, 8.5, 9.0, 9.5, 11, 13.25, 16]
+ls_result=[5.0, 5.5, 6.0, 6.5, 7.0, 8.0, 7.75, 9.0, 9.5, 11, 14, 16]
 starting_positions = [ls_result + 1e-4*np.random.randn(ndim) for i in range(nwalkers)]
 
 #starting_positions = [ls_result + 1e-4*np.random.randn(ndim)]
