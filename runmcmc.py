@@ -22,7 +22,7 @@ starting_positions = [ls_result + 1e-4*np.random.randn(ndim) for i in range(nwal
 #sampler = emcee.EnsembleSampler(nwalkers, ndim, model.log_posterior, args=('simulated_data.h5', 'pixel0000'))
 
 cov=np.eye(12)
-sampler = emcee.MHSampler(cov,ndim, model.log_posterior, args=('simulated_data.h5', 'pixel0000'), acceptance_fraction=a)
+sampler = emcee.MHSampler(cov,ndim, model.log_posterior, args=('simulated_data.h5', 'pixel0000'))
 
                                 
 # run the sampler. We use iPython's %time directive to tell us 
