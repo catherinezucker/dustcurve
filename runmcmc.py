@@ -13,17 +13,18 @@ ndim = 12
 nwalkers = 50
 nsteps = 500
 
-# set up the walkers in a "Gaussian ball" around the literature estimate for distance to Cepheus cloud (distance mod=10)
-ls_result=[4.5,4.6,5,5.1,6.2,7.0,7.75,8.0,9,12,14,16]
-starting_positions = [ls_result + 1e-4*np.random.randn(ndim) for i in range(nwalkers)]
+#This MH Code has been adapted from code snippets found in the PHYS 201 week 9 MCMC notebook (written by Vinny and Tom) and the PHYS 201 week 9 homework solutions (written by Tom and Kevin Shane)
+sampler = emcee.MHSampler(np.diagflat(np.ones(ndim)), ndim, model.log_posterior, args=('simulated_data.h5', 'pixel0000'))
 
-# set up the sampler object
-sampler = emcee.EnsembleSampler(nwalkers, ndim, model.log_posterior, args=('simulated_data.h5', 'pixel0000'))
+allsamples = np.empty((0,ndim))
+pos_array=[random.randint(4,19) for i in range(ndim)]
+std_array=[0.1 for i in range(ndim)]
+starting_positions = emcee.utils.sample_ball((pos_array),(std_array),nwalkers)
 
-# run the sampler. We use iPython's %time directive to tell us 
-# how long it took (in a script, you would leave out "%time")
-testprob=sampler.run_mcmc(starting_positions, nsteps)
-
+# run the sampler. 
+for i in range(nwalkers):
+    sampler.run_mcmc(starting_positions[i], nsteps)
+    allsamples = np.vstack((allsamples,sampler.chain[100:,:]))
 print('Done')
 
 fig, (ax_d7, ax_d11) = plt.subplots(2)
@@ -31,27 +32,20 @@ fig, (ax_d7, ax_d11) = plt.subplots(2)
 ax_d7.set(ylabel='d7')
 ax_d11.set(ylabel='d11')
 
+sns.tsplot(allsamples[:,6], ax=ax_d7)
+sns.tsplot(allsamples[:,10], ax=ax_d11)
 
-for i in range(0,nwalkers):
-    sns.tsplot(sampler.chain[i,:,6], ax=ax_d7)
-    sns.tsplot(sampler.chain[i,:,10], ax=ax_d11)
-    
-# Burn off initial steps
-samples = sampler.chain[:, 100:, :].reshape((-1, ndim))
-    
-traces = samples.reshape(-1, ndim).T
-
-parameter_samples = pd.DataFrame({'d1': traces[0], 'd2': traces[1], 'd3': traces[2], 'd4': traces[3], 'd5': traces[4], 'd6': traces[5], 'd7': traces[6], 'd8': traces[7], 'd9': traces[8], 'd10': traces[9], 'd11': traces[10], 'd12': traces[11]})
+parameter_samples = pd.DataFrame({'d7': allsamples[:,6], 'd11': allsamples[:,10]})
 
 
-q = parameter_samples.quantile([0.16,0.50,0.84], axis=0)
-
-                                            	
 print("d7 = {:.2f} + {:.2f} - {:.2f}".format(q['d7'][0.50], 
                                             q['d7'][0.84]-q['d7'][0.50],
                                             q['d7'][0.50]-q['d7'][0.16]))
 print("d11 = {:.2f} + {:.2f} - {:.2f}".format(q['d11'][0.50], 
                                             q['d11'][0.84]-q['d11'][0.50],
                                             q['d11'][0.50]-q['d11'][0.16]))
-                                                           
+
 plt.show()
+
+
+
