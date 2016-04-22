@@ -59,10 +59,11 @@ def flatten_prob_path(post_array, dbins, redbins):
     nslices=12
     #flatten the reddening profile along the reddening axis 
     #store the probability bins corresponding to each reddening "ledge" 
-    probpath=np.array([post_array[0:dbins[0],0]]) # first reddening ledge; assume no extinction before first distance bin
+    
+    probpath=np.array([post_array[0, 0:dbins[0]]]) # first reddening ledge; assume no extinction before first distance bin
     for i in range(0, nslices-1):
-        probpath=np.append(probpath, post_array[dbins[i]:dbins[i+1],redbins[i]])
-    probpath=np.append(probpath, post_array[dbins[-1]:119,redbins[-1]]) #reddening ledge from last distance bin to end of posterior array
+        probpath=np.append(probpath, post_array[redbins[i],dbins[i]:dbins[i+1]])
+    probpath=np.append(probpath, post_array[redbins[-1],dbins[-1]:119]) #reddening ledge from last distance bin to end of posterior array
     return probpath.flatten() 
 
 def log_prior(theta):
@@ -80,7 +81,6 @@ def log_prior(theta):
     for i in range(0,nslices):
         if dcheck[i] < 4 or dcheck[i] > 19: 
               return -np.inf 
-    print(d7,d11)
     #else return 0 
     return 0.0
 
@@ -96,7 +96,7 @@ def log_likelihood(theta, co_array, post_array, nstars):
     coeff_array=np.ones((12))
     dist_array=np.array([d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12])
     dist_array=np.sort(dist_array, axis=0)
-    probpix=np.zeros((nstars))
+    probpix=np.empty((nstars))
     for i in range(0,nstars):
         probpix[i]=np.log(get_line_integral(co_array[i,:], post_array[i,:,:], dist_array, coeff_array))
     probpix=np.sum(probpix)
