@@ -30,7 +30,7 @@ sampler = emcee.EnsembleSampler(nwalkers, ndim, model.log_posterior, args=('simu
                                 
 # run the sampler. We use iPython's %time directive to tell us 
 # how long it took (in a script, you would leave out "%time")
-sampler.run_mcmc(starting_positions, nsteps)
+testprob=sampler.run_mcmc(starting_positions, nsteps)
 
 print('Done')
 
