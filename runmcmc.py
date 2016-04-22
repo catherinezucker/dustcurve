@@ -17,7 +17,7 @@ nsteps = 500
 sampler = emcee.MHSampler(np.diagflat(np.ones(ndim)), ndim, model.log_posterior, args=('simulated_data.h5', 'pixel0000'))
 
 allsamples = np.empty((0,ndim))
-pos_array=[random.randint(4,19) for i in range(ndim)]
+pos_array=[np.random.randint(4,19) for i in range(ndim)]
 std_array=[0.1 for i in range(ndim)]
 starting_positions = emcee.utils.sample_ball((pos_array),(std_array),nwalkers)
 
