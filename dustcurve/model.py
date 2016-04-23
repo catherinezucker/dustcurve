@@ -95,9 +95,15 @@ def log_likelihood(theta, co_array, post_array, nstars):
     d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12 = theta
     coeff_array=np.ones((12))
     dist_array=np.array([d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12])
-    dist_array=np.sort(dist_array, axis=0)
+    
+    #sort in ascending order 
+    ascending=np.argsort(dist_array)
+    dist_array=dist_array[ascending]
+    
     probpix=np.empty((nstars))
+    
     for i in range(0,nstars):
+    	co_array[i,:]=co_array[i,:][ascending] #sort CO slices in ascending order, according to distance estimates
         probpix[i]=np.log(get_line_integral(co_array[i,:], post_array[i,:,:], dist_array, coeff_array))
     probpix=np.sum(probpix)
     return(probpix)    
