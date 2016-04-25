@@ -5,6 +5,9 @@
 
 import os
 from spectral_cube import SpectralCube
+import numpy as np
+import healpy as hp
+import h5py
 
 greg_nside=1024 #nside of the originally packaged data
 
@@ -27,7 +30,7 @@ def get_co_array(l,b):
     ib=(b-11.875)/db
     co_array=cube_data[:,ib,il]
     
-def repackage(nside=128,index):
+def repackage(index,nside=128):
     
     nside_ratio=greg_nside/nside
     
@@ -35,9 +38,9 @@ def repackage(nside=128,index):
     #these are the nside 1024 pixels whose contents we need to extract from the BMK h5 files  
     needs_indices=np.arange(index*nside_ratio,index*nside_ratio+nside_ratio)
 
-    pdf_array=np.empty()
-    co_array=np.empty()
-    coord_array=np.empty()
+    pdf_array=np.array([])
+    co_array=np.array([])
+    coord_array=np.array([])
 
     #save all the h5 files in the directory to an array
     filelist=np.array([])
@@ -47,7 +50,9 @@ def repackage(nside=128,index):
     
     #iterate over each file        
     for f in filelist:
+        
         #save name of all the pixels in the h5 file to an array
+        f=h5py.File(f)
         allpix=[key for key in f.keys()]
         
         #extract the nside 1024 index from the allpix strings 
@@ -74,6 +79,9 @@ def repackage(nside=128,index):
                 v_get_co_array=np.vectorize(get_co_array)
                 co_array=np.append(co_array, v_get_co_array(dset_coord[:,0],dset_coord[:,1]))
      
+                fin.close()
+                f.close()
+                
     nstars=co_array.shape[0]
     #write out all the packaged data into a new h5 file            
     fwrite = h5py.File(str(index)+ ".h5", "w")
