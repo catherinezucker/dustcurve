@@ -41,8 +41,7 @@ def repackage(index,nside=128):
 
     #save all the h5 files in the directory to an array
     filelist=np.array([])
-    #for file in os.listdir("/n/home09/ggreen/BMK/output-savesurfs"):
-    for file in os.listdir("/Users/catherinezucker/Desktop/DustCurve/Output/"):
+    for file in os.listdir("/n/home09/ggreen/BMK/output-savesurfs/"):
         if file.endswith(".h5"):
             filelist=np.append(filelist,file)
     
@@ -50,7 +49,7 @@ def repackage(index,nside=128):
     for file in filelist:
         
         #save name of all the pixels in the h5 file to an array
-        f=h5py.File("/Users/catherinezucker/Desktop/DustCurve/Output/"+file)
+        f=h5py.File("/n/home09/ggreen/BMK/output-savesurfs/"+file)
         allpix=[key for key in f.keys()]
         
         #extract the nside 1024 index from the allpix strings 
@@ -70,15 +69,13 @@ def repackage(index,nside=128):
                 
                 #open file containing coordinate information on stars and then save all the coordinates
                 #fin=h5py.File('/n/home09/ggreen/BMK/input/' + filelist)
-                fin=h5py.File('/Users/catherinezucker/Desktop/DustCurve/Input/' + file)
+                fin=h5py.File("/n/home09/ggreen/BMK/input/" + file)
                 l,b=(fin['photometry/' + pix_str]['l'][:][good_stars], fin['photometry/' + pix_str]['b'][:][good_stars])
-                #coord_array=np.vstack((coord_array, np.vstack((l,b))))
-                print(np.vstack((l,b)).shape)
+                coord_array=np.vstack((coord_array, np.vstack((l,b)).T))
                 
                 #grab the CO intensity values of the stars given their precise l,b coordinates
                 for i in range(0,l.shape[0]):
                     co_array=np.vstack((co_array, get_co_array(l[i],b[i])))
-                         il=np.divide(np.subtract(111.125,l),dl)
 
                 fin.close()
                 
@@ -86,19 +83,19 @@ def repackage(index,nside=128):
                 
     nstars=pdf_array[:,0,0].shape[0]
     #write out all the packaged data into a new h5 file    
-    #print(pdf_array.shape)
+    print(pdf_array.shape)
                 
     fwrite = h5py.File(str(index)+ ".h5", "w")
     pdfdata = fwrite.create_dataset("/stellar_pdfs", (nstars,700,120), dtype='f')
     pdfdata[:,:,:]=pdf_array
     
-    #print(co_array.shape)
-    #co_data = fwrite.create_dataset("/co_data", (nstars,nslices), dtype='f')
-    #co_data[:,:]=co_array
+    print(co_array.shape)
+    co_data = fwrite.create_dataset("/co_data", (nstars,nslices), dtype='f')
+    co_data[:,:]=co_array
 
-    #print(coord_array.shape)
-    #coord_data = fwrite.create_dataset("/coord_data", (nstars,2), dtype='f')
-    #coord_data[:,:]=coord_array
+    print(coord_array.shape)
+    coord_data = fwrite.create_dataset("/coord_data", (nstars,2), dtype='f')
+    coord_data[:,:]=coord_array
 
     fwrite.close()
                 
