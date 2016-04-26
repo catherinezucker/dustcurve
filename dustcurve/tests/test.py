@@ -30,6 +30,7 @@ class ModelLineIntegralTestCase(unittest.TestCase):
       (pos,lnprob,rstate)=sampler.run_mcmc(starting_positions[0],nsteps)
       #check that the line integral you're getting is above 215, the approximate probability you would get if you summed
       #over the "true" reddening profile given by the above distance array
+      print(lnprob.shape)
       self.assertTrue(lnprob>215.00)
       
 if __name__ == '__main__':
