@@ -20,7 +20,7 @@ class ModelLineIntegralTestCase(unittest.TestCase):
    def TestLineIntegral(self):
       """Tests Line Integral Function Critical to Model"""
       ndim=12
-      nsteps=1
+      nsteps=500
       nwalkers=1
       pos_array=[5,5,5,5,5,5,7.75,5,5,5,14,5]
       std_array=[1. for i in range(ndim)]
@@ -31,7 +31,7 @@ class ModelLineIntegralTestCase(unittest.TestCase):
       #check that the line integral you're getting is above 215, the approximate probability you would get if you summed
       #over the "true" reddening profile given by the above distance array
       print(lnprob.shape)
-      self.assertTrue(lnprob>215.00)
+      self.assertTrue(lnprob[-1]>215.00)
       
 if __name__ == '__main__':
     unittest.main()
