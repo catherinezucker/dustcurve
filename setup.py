@@ -12,7 +12,7 @@ setup(name='dustcurve',
           'numpy',
           'matplotlib',
           'emcee',
-          'scipy',
+          'spectral_cube',
           'healpy',
           'h5py'
       ],
