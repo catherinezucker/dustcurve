@@ -20,6 +20,7 @@ class ModelLineIntegralTestCase(unittest.TestCase):
    def TestLineIntegral(self):
       """Tests Line Integral Function Critical to Model"""
       ndim=12
+      nsteps=1
       sampler = emcee.MHSampler(np.diagflat(np.ones(ndim)), ndim, model.log_posterior, args=('simulated_data.h5'))
       starting_position=np.array([0,0,0,0,0,0,7.75,0,0,0,14,0])
       (pos,lnprob)=sampler.run_mcmc(starting_position,nsteps)
