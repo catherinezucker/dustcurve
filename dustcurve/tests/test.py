@@ -4,6 +4,7 @@ import unittest
 from dustcurve import pixclass
 from dustcurve import model
 import numpy as np
+import emcee
 
 # Test PixStars Class
 
