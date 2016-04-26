@@ -20,7 +20,8 @@ class ModelLineIntegralTestCase(unittest.TestCase):
       """Tests Line Integral Function Critical to Model"""
       pixTest = pixclass.PixStars('simulated_data.h5')
       stack_array=np.array([0,0,0,0,0,0,2,0,0,0,3,0])
-      for i in range(0,(pixTest.get_n_stars()-1))
+      nstars=pixTest.get_n_stars()
+      for i in range(0,nstars-1):
          co_array=np.vstack((co_array, stack_array))
       post_array=pixTest.get_p()
       coeff_array=np.ones((12))
