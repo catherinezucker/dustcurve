@@ -21,6 +21,7 @@ class ModelLineIntegralTestCase(unittest.TestCase):
       theta=np.array([0,0,0,0,0,0,7.75,0,0,0,14,0])
       #check that the line integral you're getting is above 215, the approximate probability you would get if you summed
       #over the "true" reddening profile given by the above distance array
+      print(model.log_posterior(theta,'simulated_data.h5'))
       self.assertTrue(model.log_posterior(theta,'simulated_data.h5')>100.00)
       
 if __name__ == '__main__':
