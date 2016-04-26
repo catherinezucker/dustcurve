@@ -32,7 +32,7 @@ def repackage(index,nside=128):
     
     #convert nside 128 index to the 1024 indices it corresponds to in the BMK files
     #these are the nside 1024 pixels whose contents we need to extract from the BMK h5 files  
-    need_indices=np.arange(index*nside_ratio,index*nside_ratio+nside_ratio)
+    need_indices=np.arange(index*nside_ratio,index*nside_ratio+nside_ratio).astype(int)
     
     pdf_array=np.empty((0,700,120))
     co_array=np.empty((0,12))
@@ -53,12 +53,13 @@ def repackage(index,nside=128):
         
         #extract the nside 1024 index from the allpix strings 
         v_get_pix_integers=np.vectorize(get_pix_integers)
-        allpix_int=v_get_pix_integers(allpix)
+        allpix_int=v_get_pix_integers(allpix).astype(int)
+        
+        print(np.intersect1d(allpix_int,need_indices))
         
         #check if any nside 1024 pixels are located within the nside 128 pixel of interest
         if len(np.intersect1d(allpix_int,need_indices)) > 0:
             dsets=np.intersect1d(allpix_int,need_indices).astype(int)
-            print(len(dsets))
             
             #extract stellar pdfs from individual pixel datasets
             for i in range(0, len(dsets)):
