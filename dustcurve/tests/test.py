@@ -19,8 +19,12 @@ class ModelLineIntegralTestCase(unittest.TestCase):
    def TestLineIntegral(self):
       """Tests Line Integral Function Critical to Model"""
       pixTest = pixclass.PixStars('simulated_data.h5')
+      co_array=pixTest.get_co()
+      post_array=pixTest.get_p()
+      coeff_array=np.ones((12))
+      dist_array=np.array([0,0,0,0,0,0,3,0,0,0,3,0])
       #check that the line integral you're getting is above 215, the approximate probability you would get if you summed
-      #over the "true" reddening profile 
+      #over the "true" reddening profile given by the above distance array
       self.assertTrue(model.get_line_integral(co_array,post_array,dist_array,coeff_array)>215.00)
       
 if __name__ == '__main__':
