@@ -27,7 +27,7 @@ class ModelLineIntegralTestCase(unittest.TestCase):
       starting_positions = emcee.utils.sample_ball((pos_array),(std_array),nwalkers) #set up the initial 
       file='simulated_data.h5'
       sampler = emcee.MHSampler(np.diagflat(np.ones(ndim)), ndim, model.log_posterior, args=[file])
-      (pos,lnprob)=sampler.run_mcmc(starting_positions[0],nsteps)
+      results=sampler.run_mcmc(starting_positions[0],nsteps)
       #check that the line integral you're getting is above 215, the approximate probability you would get if you summed
       #over the "true" reddening profile given by the above distance array
       self.assertTrue(lnprob>215.00)
