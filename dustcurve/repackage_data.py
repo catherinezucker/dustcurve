@@ -23,8 +23,8 @@ def get_pix_integers(pixstr):
     return int(pixstr.rsplit('-')[1])
     
 def get_co_array(l,b):
-    il=np.divide(np.subtract(111.125,l),dl)
-    ib=np.divide(np.subtract(b,11.875),db)
+    il=int(np.divide(np.subtract(111.125,l),dl))
+    ib=int(np.divide(np.subtract(b,11.875),db))
     co_array=cube_data[:,ib,il]    
     return(co_array)
     
@@ -101,7 +101,7 @@ def repackage(index,nside=128):
                 
             
             
-        
+    
         
         
         
