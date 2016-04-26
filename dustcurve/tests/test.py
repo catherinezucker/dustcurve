@@ -19,7 +19,9 @@ class ModelLineIntegralTestCase(unittest.TestCase):
    def TestLineIntegral(self):
       """Tests Line Integral Function Critical to Model"""
       pixTest = pixclass.PixStars('simulated_data.h5')
-      co_array=pixTest.get_co()
+      stack_array=np.array([0,0,0,0,0,0,2,0,0,0,3,0])
+      for i in range(0,pixTest.get_n_stars()-1)
+         co_array=np.vstack((co_array, stack_array))
       post_array=pixTest.get_p()
       coeff_array=np.ones((12))
       dist_array=np.array([0,0,0,0,0,0,7.75,0,0,0,14,0])
