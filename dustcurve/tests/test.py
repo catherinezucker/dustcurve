@@ -18,11 +18,13 @@ class PixStarsTestCase(unittest.TestCase):
 class ModelLineIntegralTestCase(unittest.TestCase): 
    def TestLineIntegral(self):
       """Tests Line Integral Function Critical to Model"""
-      theta=np.array([0,0,0,0,0,0,7.75,0,0,0,14,0])
+      ndim=12
+      sampler = emcee.MHSampler(np.diagflat(np.ones(ndim)), ndim, model.log_posterior, args=('simulated_data.h5'))
+      starting_position=np.array([0,0,0,0,0,0,7.75,0,0,0,14,0])
+      (pos,lnprob)=sampler.run_mcmc(starting_positions[0],nsteps)
       #check that the line integral you're getting is above 215, the approximate probability you would get if you summed
       #over the "true" reddening profile given by the above distance array
-      print(model.log_posterior(theta,'simulated_data.h5'))
-      self.assertTrue(model.log_posterior(theta,'simulated_data.h5')>100.00)
+      self.assertTrue(lnprob>215.00)
       
 if __name__ == '__main__':
     unittest.main()
