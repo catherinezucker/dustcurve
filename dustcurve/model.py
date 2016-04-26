@@ -40,7 +40,7 @@ def convert_to_bins(co_array, dist_array, coeff_array):
     
     #clip reddening values if too high or too low (to fit within bounds of stellar posterior array, with range 0-7 mags
     red_array=red_array.clip(min=0) #if any of the reddening values are negative (due to negative CO intensities, set to zero)
-    red_array=red_array.clip(max=6.99) #if any of the reddening values are > 7 magnitudes, set to 7, because this is the max value our reddening axis in stellar posterior can hold
+    red_array=red_array.clip(max=6.999) #if any of the reddening values are > 7 magnitudes, set to 7, because this is the max value our reddening axis in stellar posterior can hold
     
     #convert actual cumulative reddening to a reddening bin in the stellar posterior array 
     rmin, dr=(0.0, 0.01)
