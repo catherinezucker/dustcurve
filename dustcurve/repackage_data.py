@@ -43,7 +43,7 @@ def repackage(index,nside=128):
     for file in os.listdir("/n/home09/ggreen/BMK/output-savesurfs/"):
         if file.endswith(".h5"):
             filelist=np.append(filelist,file)
-    
+    total_dsets=0
     #iterate over each file        
     for file in filelist:
         
@@ -58,7 +58,7 @@ def repackage(index,nside=128):
         #check if any nside 1024 pixels are located within the nside 128 pixel of interest
         if len(np.intersect1d(allpix_int,need_indices)) > 0:
             dsets=np.intersect1d(allpix_int,need_indices).astype(int)
-            
+            total_dsets+=dsets
             #extract stellar pdfs from individual pixel datasets
             for i in range(0, len(dsets)):
             
@@ -84,7 +84,7 @@ def repackage(index,nside=128):
     #write out all the packaged data into a new h5 file    
     print(pdf_array.shape)
                 
-    fwrite = h5py.File(str(index)+ ".h5", "w")
+    fwrite = h5py.File("/n/fink1/czucker/dustcurve/Data/"+str(index)+ ".h5", "w")
     pdfdata = fwrite.create_dataset("/stellar_pdfs", (nstars,700,120), dtype='f')
     pdfdata[:,:,:]=pdf_array
     
@@ -95,6 +95,8 @@ def repackage(index,nside=128):
     print(coord_array.shape)
     coord_data = fwrite.create_dataset("/coord_data", (nstars,2), dtype='f')
     coord_data[:,:]=coord_array
+    
+    print("Total Datasets Found (out of 64)= % i" % total_dsets)
 
     fwrite.close()
                 
