@@ -8,9 +8,8 @@ class PixStars:
 		close = False
 		
 		if fname != None:
-			if type(pix) != str:
-				raise TypeError("If 'fname' is provided, 'dset' must be "
-				                "a string containing the name of the dataset.")
+			if type(fname) != str:
+				raise TypeError("Fname must be a string")
 			if type(fname) == h5py._hl.files.File:
 				f = fname
 			else:
@@ -18,9 +17,6 @@ class PixStars:
 				close = True
 			dpdfs = f['/stellar_pdfs']
 			dco = f['/co_data']
-		
-		if pix == None:
-			raise ValueError('A dataset name or object must be provided.')
 		
 		self.load(dpdfs,dco)
 		
