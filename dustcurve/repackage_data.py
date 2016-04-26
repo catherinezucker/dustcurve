@@ -55,8 +55,6 @@ def repackage(index,nside=128):
         v_get_pix_integers=np.vectorize(get_pix_integers)
         allpix_int=v_get_pix_integers(allpix).astype(int)
         
-        print(np.intersect1d(allpix_int,need_indices))
-        
         #check if any nside 1024 pixels are located within the nside 128 pixel of interest
         if len(np.intersect1d(allpix_int,need_indices)) > 0:
             dsets=np.intersect1d(allpix_int,need_indices).astype(int)
