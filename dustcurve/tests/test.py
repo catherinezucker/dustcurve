@@ -22,7 +22,7 @@ class ModelLineIntegralTestCase(unittest.TestCase):
       ndim=12
       nsteps=1
       nwalkers=1
-      pos_array=[4,4,4,4,4,4,7.75,4,4,4,14,4]
+      pos_array=[5,5,5,5,5,5,7.75,5,5,5,14,5]
       std_array=[1. for i in range(ndim)]
       starting_positions = emcee.utils.sample_ball((pos_array),(std_array),nwalkers) #set up the initial 
       file='simulated_data.h5'
