@@ -58,7 +58,7 @@ def repackage(index,nside=128):
         #check if any nside 1024 pixels are located within the nside 128 pixel of interest
         if len(np.intersect1d(allpix_int,need_indices)) > 0:
             dsets=np.intersect1d(allpix_int,need_indices).astype(int)
-            total_dsets+=dsets
+            total_dsets=total_dsets+len(dsets)
             #extract stellar pdfs from individual pixel datasets
             for i in range(0, len(dsets)):
             
