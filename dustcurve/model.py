@@ -14,8 +14,6 @@ def get_line_integral(co_array, post_array, dist_array, coeff_array):
         coeff_array: array of dust-to-gas coefficients for the slices from MCMC
     """
     dbins, redbins=convert_to_bins(co_array, dist_array, coeff_array)
-    print(redbins)
-    print(dbins)
     probpath=flatten_prob_path(post_array,dbins,redbins)
     return np.sum(probpath) 
         
