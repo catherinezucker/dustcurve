@@ -111,7 +111,7 @@ def log_likelihood(theta, co_array, post_array, nstars):
     dist_array=dist_array[ascending]
     coeff_array=coeff_array[ascending]
     
-    v_get_line_integral=np.vectorize(get_line_integral)
+    v_get_line_integral=np.vectorize(get_line_integral,excluded=['co_array', 'post_array', 'dist_array', 'coeff_array', 'ascending'])
     
     stellar_indices=np.arange(0,nstars,dtype='i')
     
