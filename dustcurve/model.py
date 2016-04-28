@@ -13,7 +13,7 @@ def get_line_integral(co_array, post_array, dist_array, coeff_array, stellar_ind
         dist_array: array of distances to the slices from MCMC
         coeff_array: array of dust-to-gas coefficients for the slices from MCMC
     """
-    dbins, redbins=convert_to_bins(co_array[stellar_index,:,:][order],dist_array[order], coeff_array[order])
+    dbins, redbins=convert_to_bins(co_array[stellar_index,:][order], dist_array, coeff_array)
     probpath=flatten_prob_path(post_array[stellar_index,:,:],dbins,redbins)
     
     #return log likelihood for individual star
