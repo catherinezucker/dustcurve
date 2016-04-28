@@ -3,27 +3,45 @@ import numpy as np
 import matplotlib.pyplot as plt
 from dustcurve import pixclass
 
-def get_line_integral(co_array, post_array, dist_array, coeff_array):
+def fetch_stardat(co_array_post_array, stellar_index, order):
+    """
+    extract the correct stellar posterior and CO intensity data for an individual star from the full dataset,
+    so we can vectorize the function get_line_integrals, within our likelihood function
+    
+    returns: co_star=1D array of CO intensities for an individual star (shape=1xnslices)
+ 			 post_star: 2D stellar posterior array for an individual star (shape=700x120)
+ 	
+ 	Parameters:
+ 	   		co_array: 2D (shape=nstarsx12) array of CO intensities for all stars 
+        	post_array: set of 700x120 stellar posterior arrays all stars (shape=nstarsx700x120)
+        	stellar_index: the index of the co_array and post_array corresponding to the star you want to extract
+        	order: the ordering of the distance and coefficient slices, because our reddening profile has to be determined in ascending distance order
+    """
+    return co_array[stellar_index,:][ascending], post_array[stellar_index,:,:]
+
+def get_line_integral(co_star, post_star, dist_array, coeff_array):
     """
     returns line integral over stellar posterior for individual star 
     
     Parameters:
-        co_array: array of CO intensities (ndim=nslices) for an individual star 
-        post_array: 700x120 stellar posterior array for an individual star
+        co_star: 1D array of CO intensities for an individual star (shape=1xnslices)
+        post_star: 2D stellar posterior array for an individual star (shape=700x120)
         dist_array: array of distances to the slices from MCMC
         coeff_array: array of dust-to-gas coefficients for the slices from MCMC
     """
-    dbins, redbins=convert_to_bins(co_array, dist_array, coeff_array)
-    probpath=flatten_prob_path(post_array,dbins,redbins)
-    return np.sum(probpath) 
+    dbins, redbins=convert_to_bins(co_star, dist_array, coeff_array)
+    probpath=flatten_prob_path(post_star,dbins,redbins)
+    
+    #return log likelihood for individual star
+    return np.log(np.sum(probpath)) 
         
-def convert_to_bins(co_array, dist_array, coeff_array):
+def convert_to_bins(co_star, dist_star, coeff_array):
     """
-    returns: dbins= an array of bin indices in post_array corresponding to the distances to each velocity slice 
-             rbins= an array of bin indices in post_array corresponding to the reddening to each velocity slice 
+    returns: dbins= an array of bin indices in post_star corresponding to the distances to each velocity slice 
+             rbins= an array of bin indices in post_star corresponding to the reddening to each velocity slice 
              
     Parameters:
-        co_array: array of CO intensities (ndim=nslices) for an individual star 
+        co_star: 1D array of CO intensities for an individual star (shape=1xnslices)
         dist_array: array of distances to the slices from MCMC
         coeff_array: array of dust-to-gas coefficients for the slices from MCMC
     """
@@ -46,24 +64,24 @@ def convert_to_bins(co_array, dist_array, coeff_array):
     redbins=redbins.astype(int)
     return dbins, redbins
     
-def flatten_prob_path(post_array, dbins, redbins):
+def flatten_prob_path(post_star, dbins, redbins):
     """
     returns: 
     probpath: an array of probabilities flattened along the reddening axis, defined by the reddening profile
                  
     Parameters:
-        post_array: 700x120 stellar posterior array for an individual star
-         dbins: an array of bin indices in post_array corresponding to the distances to each velocity slice 
+        post_star: 2D stellar posterior array for an individual star (shape=700x120)
+        dbins: an array of bin indices in post_array corresponding to the distances to each velocity slice 
         rbins: an array of bin indicies in post_array corresponding to the reddening to each velocity slice 
     """
     nslices=12
     #flatten the reddening profile along the reddening axis 
     #store the probability bins corresponding to each reddening "ledge" 
     
-    probpath=np.array([post_array[0, 0:dbins[0]]]) # first reddening ledge; assume no extinction before first distance bin
+    probpath=np.array([post_star[0, 0:dbins[0]]]) # add first reddening ledge; assume no extinction before first distance bin
     for i in range(0, nslices-1):
-        probpath=np.append(probpath, post_array[redbins[i],dbins[i]:dbins[i+1]])
-    probpath=np.append(probpath, post_array[redbins[-1],dbins[-1]:119]) #reddening ledge from last distance bin to end of posterior array
+        probpath=np.append(probpath, post_star[redbins[i],dbins[i]:dbins[i+1]])
+    probpath=np.append(probpath, post_star[redbins[-1],dbins[-1]:119]) #add reddening ledge from last distance bin to end of posterior array
     return probpath.flatten() 
 
 def log_prior(theta):
@@ -96,24 +114,29 @@ def log_likelihood(theta, co_array, post_array, nstars):
     
     Parameters:
         theta: model parameters (specified as a tuple)
-        pixel: a string representing the pixel within the hdf5 file we're pulling data from
+        co_array: 2D (shape=nstarsx12) array of CO intensities for all stars 
+        post_array: set of 700x120 stellar posterior arrays all stars (shape=nstarsx700x120)
+        nstars: integer storing the number of stars in the file
     """
     d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12 = theta
     coeff_array=np.array([c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12])
     dist_array=np.array([d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12])
     
-    #sort in ascending order 
+    #sort distances in ascending order and sort the coefficient array by this order
     ascending=np.argsort(dist_array)
     dist_array=dist_array[ascending]
     coeff_array=coeff_array[ascending]
     
-    probpix=np.empty((nstars))
+    v_fetch_stardat=np.vectorize(fetch_stardat)
+    v_get_line_integral=np.vectorize(get_line_integral)
     
-    for i in range(0,nstars):
-        co_array[i,:]=co_array[i,:][ascending] #sort CO slices in ascending order, according to distance estimates
-        probpix[i]=np.log(get_line_integral(co_array[i,:], post_array[i,:,:], dist_array, coeff_array))
-    probpix=np.sum(probpix)
-    return(probpix)    
+    stellar_indices=np.arange(0,nstars,dtype='i')
+    
+    #construct an array holding the likelihood probability for each individual star 
+    prob_ensemble=v_get_line_integral(v_fetch_stardat(co_array,post_array,stellar_indices,ascending))
+    
+    #total log likelihood for all stars is the sum of the individual log likelihoods 
+    return np.sum(prob_ensemble)
 
 def log_posterior(theta,co_array,post_array,n_stars):
     """
@@ -121,8 +144,10 @@ def log_posterior(theta,co_array,post_array,n_stars):
     
     Parameters:
         theta: model parameters (specified as a tuple)
-        pixel: a string representing the pixel within the hdf5 file we're pulling data from
+        co_array: 2D (shape=nstarsx12) array of CO intensities for all stars 
+        post_array: set of 700x120 stellar posterior array all stars (shape=nstarsx700x120)
+        nstars: integer storing the number of stars in the file
+
     """
-    
     d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12 = theta
     return log_prior(theta) + log_likelihood(theta, co_array, post_array, n_stars)
