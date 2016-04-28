@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from dustcurve import pixclass
 
-def get_line_integral(co_array, post_array, dist_array, coeff_array, stellar_index, order):
+def get_line_integral(stellar_index, co_array, post_array, dist_array, coeff_array,order):
     """
     returns line integral over stellar posterior for individual star 
     
@@ -116,7 +116,7 @@ def log_likelihood(theta, co_array, post_array, nstars):
     stellar_indices=np.arange(0,nstars,dtype='i')
     
     #construct an array holding the likelihood probability for each individual star 
-    prob_ensemble=v_get_line_integral(co_array,post_array,dist_array,coeff_array, stellar_indices,ascending)
+    prob_ensemble=v_get_line_integral(stellar_indices, co_array,post_array,dist_array,coeff_array,ascending)
     
     #total log likelihood for all stars is the sum of the individual log likelihoods 
     return np.sum(prob_ensemble)
