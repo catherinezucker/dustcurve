@@ -85,7 +85,7 @@ def log_prior(theta):
     if np.any(dcheck) < 4.0 or np.any(dcheck) > 19.0:
         return -np.inf
         
-    if np.any(ccheck) < .01 or np.any(ccheck) > .10:
+    if np.any(ccheck) < .01 or np.any(ccheck) > 2.0:
         return -np.inf
     
     return 0.0
