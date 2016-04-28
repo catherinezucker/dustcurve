@@ -19,14 +19,27 @@ class PixStarsTestCase(unittest.TestCase):
 class ModelLineIntegralTestCase(unittest.TestCase): 
    def TestLineIntegral(self):
       """Tests Line Integral Function Critical to Model"""
-      ndim=12
-      nsteps=500
-      nwalkers=1
-      pos_array=[5,5,5,5,5,5,7.75,5,5,5,14,5]
+      ncoeff = 12
+      ndist= 12
+      ndim=24
+      nwalkers = 50
+      nsteps = 500
+      
+      fname='simulated_data.h5'
+      pixObj=pixclass.PixStars(fname)
+      co_array=np.asarray(pixObj.get_co()[:,:])
+      post_array=np.asarray(pixObj.get_p()[:,:,:])
+      nstars=pixObj.get_n_stars()
+      data=(co_array,post_array,nstars) 
+
+      allsamples = np.empty((1,ndim))
+      pos_array=[0,0,0,0,0,0,7.75,0,0,0,14,0] #set off walkers at random distances within acceptable range
+      pos_array.extend([1 for i in range(ncoeff)]) #set of walkers near expected gas to dust coefficient in literatre (0.03 mags of reddening per CO intensity unit K)
       std_array=[1. for i in range(ndim)]
-      starting_positions = emcee.utils.sample_ball((pos_array),(std_array),nwalkers) #set up the initial 
-      file='simulated_data.h5'
-      sampler = emcee.MHSampler(np.diagflat(np.ones(ndim)), ndim, model.log_posterior, args=[file])
+      starting_positions = emcee.utils.sample_ball((pos_array),(std_array),nwalkers) #set up the initial position vectors for our walkers
+
+      sampler = emcee.MHSampler(np.diagflat(np.ones(ndim)), ndim, model.log_posterior, args=(data))
+      
       (pos,lnprob,rstate)=sampler.run_mcmc(starting_positions[0],nsteps)
       #check that the line integral you're getting is above 215, the approximate probability you would get if you summed
       #over the "true" reddening profile given by the above distance array
