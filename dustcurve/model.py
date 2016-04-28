@@ -74,12 +74,17 @@ def log_prior(theta):
         theta: model parameters (specified as a tuple)
     """
     # unpack the model parameters (12 distance parameters for 12 velocity slices)
-    d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12 = theta 
+    d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12 = theta
     nslices=12    
-    #check to make sure each d is within the range specified by prior; if not, return -np.inf
+
     dcheck=np.array([d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12])
+    ccheck=np.array([c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12])
+    
+    #check to make sure each d and c is within the range specified by prior; if not, return -np.inf
     for i in range(0,nslices):
         if dcheck[i] < 4 or dcheck[i] > 19: 
+              return -np.inf 
+        if ccheck[i] < .01 or ccheck[i] > .10: 
               return -np.inf 
     #else return 0 
     return 0.0
@@ -92,13 +97,14 @@ def log_likelihood(theta, co_array, post_array, nstars):
         theta: model parameters (specified as a tuple)
         pixel: a string representing the pixel within the hdf5 file we're pulling data from
     """
-    d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12 = theta
-    coeff_array=np.ones((12))
+    d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12 = theta
+    coeff_array=np.array([c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12])
     dist_array=np.array([d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12])
     
     #sort in ascending order 
     ascending=np.argsort(dist_array)
     dist_array=dist_array[ascending]
+    coeff_array=coeff_array[ascending]
     
     probpix=np.empty((nstars))
     
@@ -121,5 +127,5 @@ def log_posterior(theta,fname):
     post_array=np.asarray(pixObj.get_p()[:,:,:])
     nstars=pixObj.get_n_stars()
     
-    d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12 = theta
+    d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12 = theta
     return log_prior(theta) + log_likelihood(theta, co_array, post_array, nstars)
