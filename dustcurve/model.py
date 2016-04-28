@@ -3,24 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from dustcurve import pixclass
 
-def fetch_stardat(co_array, post_array, stellar_index, order):
-    """
-    extract the correct stellar posterior and CO intensity data for an individual star from the full dataset,
-    so we can vectorize the function get_line_integrals, within our likelihood function
-    
-    returns: co_star=1D array of CO intensities for an individual star (shape=1xnslices)
- 			 post_star: 2D stellar posterior array for an individual star (shape=700x120)
- 	
- 	Parameters:
- 	   		co_array: 2D (shape=nstarsx12) array of CO intensities for all stars 
-        	post_array: set of 700x120 stellar posterior arrays all stars (shape=nstarsx700x120)
-        	stellar_index: the index of the co_array and post_array corresponding to the star you want to extract
-        	order: the ordering of the distance and coefficient slices, because our reddening profile has to be determined in ascending distance order
-    """
-    print(stellar_index)
-    return co_array[stellar_index,:][ascending], post_array[stellar_index,:,:]
-
-def get_line_integral(co_star, post_star, dist_array, coeff_array):
+def get_line_integral(co_array, post_array, dist_array, coeff_array, stellar_index, order):
     """
     returns line integral over stellar posterior for individual star 
     
@@ -30,8 +13,8 @@ def get_line_integral(co_star, post_star, dist_array, coeff_array):
         dist_array: array of distances to the slices from MCMC
         coeff_array: array of dust-to-gas coefficients for the slices from MCMC
     """
-    dbins, redbins=convert_to_bins(co_star, dist_array, coeff_array)
-    probpath=flatten_prob_path(post_star,dbins,redbins)
+    dbins, redbins=convert_to_bins(co_array[stellar_index,:,:][order],dist_array[order], coeff_array[order])
+    probpath=flatten_prob_path(post_array[stellar_index,:,:],dbins,redbins)
     
     #return log likelihood for individual star
     return np.log(np.sum(probpath)) 
@@ -128,13 +111,12 @@ def log_likelihood(theta, co_array, post_array, nstars):
     dist_array=dist_array[ascending]
     coeff_array=coeff_array[ascending]
     
-    v_fetch_stardat=np.vectorize(fetch_stardat)
     v_get_line_integral=np.vectorize(get_line_integral)
     
     stellar_indices=np.arange(0,nstars,dtype='i')
     
     #construct an array holding the likelihood probability for each individual star 
-    prob_ensemble=v_get_line_integral(v_fetch_stardat(co_array,post_array,stellar_indices,ascending))
+    prob_ensemble=v_get_line_integral(co_array,post_array,stellar_indices,ascending)
     
     #total log likelihood for all stars is the sum of the individual log likelihoods 
     return np.sum(prob_ensemble)
