@@ -81,12 +81,13 @@ def log_prior(theta):
     ccheck=np.array([c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12])
     
     #check to make sure each d and c is within the range specified by prior; if not, return -np.inf
-    for i in range(0,nslices):
-        if dcheck[i] < 4 or dcheck[i] > 19: 
-              return -np.inf 
-        if ccheck[i] < .01 or ccheck[i] > .10: 
-              return -np.inf 
-    #else return 0 
+
+    if np.any(dcheck) < 4.0 or np.any(dcheck) > 19.0:
+        return -np.inf
+        
+    if np.any(ccheck) < .01 or np.any(ccheck) > .10:
+        return -np.inf
+    
     return 0.0
 
 def log_likelihood(theta, co_array, post_array, nstars):
