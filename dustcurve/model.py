@@ -116,7 +116,7 @@ def log_likelihood(theta, co_array, post_array, nstars):
     stellar_indices=np.arange(0,nstars,dtype='i')
     
     #construct an array holding the likelihood probability for each individual star 
-    prob_ensemble=v_get_line_integral(co_array,post_array,stellar_indices,ascending)
+    prob_ensemble=v_get_line_integral(co_array,post_array,dist_array,coeff_array, stellar_indices,ascending)
     
     #total log likelihood for all stars is the sum of the individual log likelihoods 
     return np.sum(prob_ensemble)
