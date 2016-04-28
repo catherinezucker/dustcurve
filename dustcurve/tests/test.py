@@ -33,7 +33,7 @@ class ModelLineIntegralTestCase(unittest.TestCase):
       data=(co_array,post_array,nstars) 
 
       allsamples = np.empty((1,ndim))
-      pos_array=[0,0,0,0,0,0,7.75,0,0,0,14,0] #set off walkers at random distances within acceptable range
+      pos_array=[4,4.5,4.75,5,5,5,7.75,8,8,8,14,15] #set off walkers at random distances within acceptable range
       pos_array.extend([1 for i in range(ncoeff)]) #set of walkers near expected gas to dust coefficient in literatre (0.03 mags of reddening per CO intensity unit K)
       std_array=[1. for i in range(ndim)]
       starting_positions = emcee.utils.sample_ball((pos_array),(std_array),nwalkers) #set up the initial position vectors for our walkers
