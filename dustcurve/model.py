@@ -125,4 +125,4 @@ def log_posterior(theta,co_array,post_array,n_stars):
     """
     
     d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12 = theta
-    return log_prior(theta) + log_likelihood(theta, co_array, post_array, nstars)
+    return log_prior(theta) + log_likelihood(theta, co_array, post_array, n_stars)
