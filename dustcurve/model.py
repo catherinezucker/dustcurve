@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from dustcurve import pixclass
 
-def fetch_stardat(co_array_post_array, stellar_index, order):
+def fetch_stardat(co_array, post_array, stellar_index, order):
     """
     extract the correct stellar posterior and CO intensity data for an individual star from the full dataset,
     so we can vectorize the function get_line_integrals, within our likelihood function
