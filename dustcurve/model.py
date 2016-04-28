@@ -17,6 +17,7 @@ def fetch_stardat(co_array, post_array, stellar_index, order):
         	stellar_index: the index of the co_array and post_array corresponding to the star you want to extract
         	order: the ordering of the distance and coefficient slices, because our reddening profile has to be determined in ascending distance order
     """
+    print(stellar_index)
     return co_array[stellar_index,:][ascending], post_array[stellar_index,:,:]
 
 def get_line_integral(co_star, post_star, dist_array, coeff_array):
