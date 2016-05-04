@@ -32,10 +32,12 @@ def get_line_integral(stellar_index,co_array,post_array,dist_array,coeff_array,o
     returns line integral over stellar posterior for individual star 
     
     Parameters:
-        co_star: 1D array of CO intensities for an individual star (shape=1xnslices)
-        post_star: 2D stellar posterior array for an individual star (shape=700x120)
+        stellar_index: The index of the star to retrieve the likelihood for 
+        co_array: 2D array of CO intensities for all stars (shape=nstarsxnslices)
+        post_array: 3D stellar posterior array containing posteriors for all stars (shape=nstarsx700x120)
         dist_array: array of distances to the slices from MCMC
         coeff_array: array of dust-to-gas coefficients for the slices from MCMC
+        order: an array which sorts dist_array and co_array in ascending order
     """
     dbins, redbins=convert_to_bins(co_array[stellar_index,:][order],dist_array, coeff_array)
     prob=flatten_prob_path(post_array[stellar_index,:,:],dbins,redbins)
@@ -77,7 +79,7 @@ def convert_to_bins(co_star, dist_array, coeff_array):
 def flatten_prob_path(post_star, dbins, redbins):
     """
     returns: 
-    probpath: probability summed over the flattened path extracted from the reddening profile 
+    psum: probability summed over the flattened path extracted from the reddening profile 
               
     Parameters:
         post_star: 2D stellar posterior array for an individual star (shape=700x120)
@@ -115,14 +117,12 @@ def log_prior(theta,bounds):
 
     Parameters:
     theta: model parameters
-    lowerd: lower bound on distance
-    upperd: upper bound on distance
-    lowerc: lower bound on gas-to-dust conversion coefficients
-    upperd: upper bound on gas-to-dust conversion coefficients
+    bounds: an array of the format [lowerbound, upperbound] specifying the prior range on distance
     """
     d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12 = theta
     dcheck=np.array([d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12])
 
+    #check if any elements are outside specified bounds
     testd = (dcheck<bounds[0]) | (dcheck>bounds[1])
     if testd.any()==True:
         return -np.inf
@@ -135,9 +135,10 @@ def log_likelihood(theta, co_array, post_array, nstars, ratio):
     
     Parameters:
         theta: model parameters (specified as a tuple)
-        co_array: 2D (shape=nstarsx12) array of CO intensities for all stars 
+        co_array: 2D (shape=nstarsxnslices) array of CO intensities for all stars 
         post_array: set of 700x120 stellar posterior arrays all stars (shape=nstarsx700x120)
         nstars: integer storing the number of stars in the file
+        ratio: the gas-to-dust coefficient
     """
     d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12 = theta
 
@@ -163,10 +164,12 @@ def log_likelihood(theta, co_array, post_array, nstars, ratio):
     #construct an array holding the likelihood probability for each individual star 
     prob_ensemble=np.array(v_get_line_integral(stellar_indices,co_array,post_array,dist_array,coeff_array,order))
     
+    #remove values that aren't a finite number from likelihood array; only sum finite numbers
     if np.any(np.isfinite(prob_ensemble))==True:
         finite=np.where(np.isfinite(prob_ensemble)==True)
         prob_ensemble=prob_ensemble[finite]
         return(np.sum(prob_ensemble))
+    #if no finite numbers, return probability of -inf
     else:
         return -np.inf
 
@@ -178,7 +181,8 @@ def log_posterior(theta,co_array,post_array,bounds,n_stars,ratio):
         theta: model parameters (specified as a tuple)
         co_array: 2D (shape=nstarsx12) array of CO intensities for all stars 
         post_array: set of 700x120 stellar posterior array all stars (shape=nstarsx700x120)
-        nstars: integer storing the number of stars in the file
+        n_stars: integer storing the number of stars in the file
+        ratio: the gas-to-dust coefficient
 
     """
     d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12 = theta
