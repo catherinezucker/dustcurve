@@ -9,6 +9,7 @@ This package uses the stellar posteriors on distance and reddening for individua
 - model.ipynb : A jupyter notebook containing details of our statistical modeling, and the application of our analysis to simulated data
 - tutorial. ipynb: A jupyter notebook containing sample analysis on real data, and walking through the required steps to run the MCMC code yourself
 - simulated_data.h5: the required data file needed to run model.ipynb. Model.ipynb creates this file as part of its script, but if you download this directly, you only need to run the part of the notebook containing the MCMC code
+- model.py: the module contains all the necessary functions to run our MCMC code, including a log_posterior function, a log_likelihood function, a log_prior function, and all the functions that these depend on
 - pixclass.py : a class created to hold our data and metadata, called a PixStars object. In our case, it holds all the stellar posterior arrays, stellar coordinates, and CO intensity information for a single pixel 
 - io.py: A module that creates an instance of our class, a PixStar, and returns all the required arguments to run our parallel tempering sampler (PTSampler from the emcee class). It's primary function, fetch_args, accepts a filename, an array containing the lower and upper bounds of our uniform distance prior, and a desired gas-to-dust coefficient. 
-- hputils.py & repackage_data.py: packages used to convert the raw data into a more MCMC-friendly format. These modules were used to create our 
+- hputils.py & repackage_data.py: modules used to convert the raw data into a more MCMC-friendly format. These modules were used to create the data used in tutorial.ipynb, 89996.h5, which is all the data for the center of the Cepheus cloud. 
