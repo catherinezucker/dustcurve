@@ -6,5 +6,5 @@ This package uses the stellar posteriors on distance and reddening for individua
 
 ## Files:
 
-- model.ipynb : A jupyter notebook containing details on the model implemented
+- model.ipynb : A jupyter notebook containing details of our statistical modeling, and the application of our analysis to simulated data
 - tutorial. ipynb: A jupyter notebook containing sample analysis on real data, and walking through the required steps to run the MCMC code yourself
