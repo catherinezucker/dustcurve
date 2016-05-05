@@ -45,7 +45,7 @@ class IOTestLikelihood(unittest.TestCase):
       self.assertTrue(type(ldata)==tuple)
 
 #test model module pt 1 
-class ModelLineIntegralTestCase(unittest.TestCase): 
+class ModelTestCase(unittest.TestCase): 
    def TestLineIntegral(self):
         ndim=12
         nwalkers = 50
@@ -73,7 +73,7 @@ class ModelLineIntegralTestCase(unittest.TestCase):
         self.assertTrue(lnprob[0,0,0]>5.00)
 
 #test model module pt 2 
-class ModelLineIntegralTestCase(unittest.TestCase): 
+class ModelTestCasePrior(unittest.TestCase): 
    def TestLineIntegral(self):
         ndim=12
         nwalkers = 50
