@@ -16,6 +16,7 @@ setup(name='dustcurve',
           'healpy',
           'h5py'
           'scipy'
+          'warnings' #to supress emcee's PTSampler deprecation warnings
       ],
       test_suite='nose.collector',
       tests_require=['nose'],
