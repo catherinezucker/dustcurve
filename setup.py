@@ -12,7 +12,7 @@ setup(name='dustcurve',
           'numpy',
           'matplotlib',
           'emcee',
-          'spectral_cube', #only if using repackage_data.py, not if running MCMC
+          'spectral-cube', #only if using repackage_data.py, not if running MCMC
           'healpy',
           'h5py',
           'scipy',
