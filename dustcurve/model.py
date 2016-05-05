@@ -5,10 +5,10 @@ from dustcurve import pixclass
 
 def get_line_integral(stellar_index,co_array,post_array,dist_array,coeff_array,order):
     """
-    returns line integral over stellar posterior for individual star 
-    
+    returns line integral over stellar posterior for individual star
+
     Parameters:
-        stellar_index: The index of the star to retrieve the likelihood for 
+        stellar_index: The index of the star to retrieve the likelihood for
         co_array: 2D array of CO intensities for all stars (shape=nstarsxnslices)
         post_array: 3D stellar posterior array containing posteriors for all stars (shape=nstarsx700x120)
         dist_array: array of distances to the slices from MCMC
@@ -17,15 +17,15 @@ def get_line_integral(stellar_index,co_array,post_array,dist_array,coeff_array,o
     """
     dbins, redbins=convert_to_bins(co_array[stellar_index,:][order],dist_array, coeff_array)
     probpath=flatten_prob_path(post_array[stellar_index,:,:],dbins,redbins)
-    
+
     #return log likelihood for individual star
     return np.log(np.sum(probpath))
 
 def convert_to_bins(co_star, dist_array, coeff_array):
     """
-    returns: dbins= an array of bin indices in post_star corresponding to the distances to each velocity slice 
-             rbins= an array of bin indices in post_star corresponding to the reddening to each velocity slice 
-             
+    returns: dbins= an array of bin indices in post_star corresponding to the distances to each velocity slice
+             rbins= an array of bin indices in post_star corresponding to the reddening to each velocity slice
+
     Parameters:
         co_star: 1D array of CO intensities for an individual star (shape=1xnslices)
         dist_array: array of distances to the slices from MCMC
@@ -44,7 +44,7 @@ def convert_to_bins(co_star, dist_array, coeff_array):
     red_array=red_array.clip(min=0) #if any of the reddening values are negative (due to negative CO intensities, set to zero)
     red_array=red_array.clip(max=6.999) #if any of the reddening values are > 7 magnitudes, set to 7, because this is the max value our reddening axis in stellar posterior can hold
 
-    #convert actual cumulative reddening to a reddening bin in the stellar posterior array 
+    #convert actual cumulative reddening to a reddening bin in the stellar posterior array
     rmin, dr=(0.0, 0.01)
     redbins=np.divide(np.subtract(red_array,rmin), dr)
     redbins=redbins.astype(int)
@@ -53,17 +53,17 @@ def convert_to_bins(co_star, dist_array, coeff_array):
 
 def flatten_prob_path(post_star, dbins, redbins):
     """
-    returns: 
+    returns:
     probpath: an array of probabilities flattened along the reddening axis, defined by the reddening profile
-                 
+
     Parameters:
         post_star: 2D stellar posterior array for an individual star (shape=700x120)
-        dbins: an array of bin indices in post_array corresponding to the distances to each velocity slice 
-        rbins: an array of bin indicies in post_array corresponding to the reddening to each velocity slice 
+        dbins: an array of bin indices in post_array corresponding to the distances to each velocity slice
+        rbins: an array of bin indicies in post_array corresponding to the reddening to each velocity slice
     """
     nslices=12
-    #flatten the reddening profile along the reddening axis 
-    #store the probability bins corresponding to each reddening "ledge" 
+    #flatten the reddening profile along the reddening axis
+    #store the probability bins corresponding to each reddening "ledge"
 
     probpath=np.array([post_star[0, 0:dbins[0]]]) # add first reddening ledge; assume no extinction before first distance bin
     for i in range(0, nslices-1):
@@ -88,12 +88,12 @@ def log_prior(theta,bounds):
     return 0
 
 def log_likelihood(theta, co_array, post_array, nstars, ratio):
-     """
+    """
     returns log of likelihood for all the stars in a single pixel
-    
+
     Parameters:
         theta: model parameters (specified as a tuple)
-        co_array: 2D (shape=nstarsxnslices) array of CO intensities for all stars 
+        co_array: 2D (shape=nstarsxnslices) array of CO intensities for all stars
         post_array: set of 700x120 stellar posterior arrays all stars (shape=nstarsx700x120)
         nstars: integer storing the number of stars in the file
         ratio: the gas-to-dust coefficient
@@ -101,7 +101,7 @@ def log_likelihood(theta, co_array, post_array, nstars, ratio):
     d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12 = theta
 
     dist_array=np.array([d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12])
-    
+
     coeff_array=np.ones((12))*ratio
 
     #sort distances in ascending order and sort the coefficient array by this order
@@ -118,10 +118,10 @@ def log_likelihood(theta, co_array, post_array, nstars, ratio):
     v_get_line_integral.excluded.add(5)
 
     stellar_indices=np.arange(0,nstars,dtype='i')
-    
-    #construct an array holding the likelihood probability for each individual star 
+
+    #construct an array holding the likelihood probability for each individual star
     prob_ensemble=np.array(v_get_line_integral(stellar_indices,co_array,post_array,dist_array,coeff_array,order))
-    
+
     if np.any(np.isfinite(prob_ensemble))==True:
         finite=np.where(np.isfinite(prob_ensemble)==True)
         prob_ensemble=prob_ensemble[finite]
@@ -130,16 +130,15 @@ def log_likelihood(theta, co_array, post_array, nstars, ratio):
         return -np.inf
 
 def log_posterior(theta,co_array,post_array,bounds,n_stars,ratio):
-   """
-    returns log of posterior probability distribution for all the stars in a single pixel 
-    
+    """
+    returns log of posterior probability distribution for all the stars in a single pixel
+
     Parameters:
         theta: model parameters (specified as a tuple)
-        co_array: 2D (shape=nstarsx12) array of CO intensities for all stars 
+        co_array: 2D (shape=nstarsx12) array of CO intensities for all stars
         post_array: set of 700x120 stellar posterior array all stars (shape=nstarsx700x120)
         n_stars: integer storing the number of stars in the file
         ratio: the gas-to-dust coefficient
     """
     d1,d2,d3,d4,d5,d6,d7,d8,d9,d10,d11,d12 = theta
     return log_prior(theta,bounds) + log_likelihood(theta, co_array, post_array, n_stars, ratio)
-
