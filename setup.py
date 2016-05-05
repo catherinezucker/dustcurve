@@ -13,6 +13,8 @@ setup(name='dustcurve',
           'emcee',
           'numpy',
           'scipy'
+          'seaborn'
+          'pandas'
       ],
       dependency_links=['https://github.com/h5py/h5py.git']
       test_suite='nose.collector',
