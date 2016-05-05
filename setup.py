@@ -16,7 +16,7 @@ setup(name='dustcurve',
           'seaborn'
           'pandas'
       ],
-      dependency_links=['https://github.com/h5py/h5py.git']
+      dependency_links=['https://github.com/h5py/h5py.git'],
       test_suite='nose.collector',
       tests_require=['nose'],
       zip_safe=False)
