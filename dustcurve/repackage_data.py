@@ -1,6 +1,6 @@
 #this script repackages stellar posterior data from its current format on Harvard Odyssey, 
 #and combines it with CO intensity data from the Dame et al. 2001 spectral cubes
-#Originally, posteriors are packaged in healpy nside 1024 pixels, but we want everything in nside 128 pixels
+#Originally, posteriors are packaged in healpy nside 1024 pixels, but we want everything in nside 128 pixels (larger area chunks)
 
 import os
 from spectral_cube import SpectralCube
