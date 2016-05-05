@@ -44,7 +44,7 @@ class IOTestLikelihood(unittest.TestCase):
       #Is the ldata the right type?
       self.assertTrue(type(ldata)==tuple)
 
-#test model module      
+#test model module pt 1 
 class ModelLineIntegralTestCase(unittest.TestCase): 
    def TestLineIntegral(self):
         ndim=12
@@ -71,6 +71,35 @@ class ModelLineIntegralTestCase(unittest.TestCase):
         #over the "true" reddening profile given by the above distance array
         
         self.assertTrue(lnprob[0,0,0]>5.00)
+
+#test model module pt 2 
+class ModelLineIntegralTestCase(unittest.TestCase): 
+   def TestLineIntegral(self):
+        ndim=12
+        nwalkers = 50
+        nsteps = 1
+        ntemps=5
+
+        #fetch the required likelihood and prior arguments for PTSampler
+        ldata,pdata=io.fetch_args('simulated_data.h5',[4,19],1.0)
+
+        #set up the walkers outside the prior bounds, so we should hopefully return -np.inf
+        result=[0,5,5,5,5,3,7.75,8,8,8,14,20]
+
+        #set up starting positions, all at same distance with known probability 
+        starting_positions = [[result for i in range(nwalkers)] for j in range(ntemps)]
+
+        #set up the sampler object
+        sampler = emcee.PTSampler(ntemps, nwalkers, ndim, model.log_likelihood, model.log_prior, loglargs=(ldata), logpargs=[pdata])
+     
+        sampler.run_mcmc(starting_positions,nsteps)
+        lnprob=sampler.lnprobability
+        
+        #check that the line integral you're getting is above 215, the minimum probability you would get if you summed
+        #over the "true" reddening profile given by the above distance array
+        
+        self.assertTrue(lnprob[0,0,0]==-np.inf)
+    
       
 if __name__ == '__main__':
     unittest.main()
