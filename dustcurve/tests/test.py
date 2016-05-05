@@ -67,7 +67,7 @@ class ModelTestCase(unittest.TestCase):
         sampler.run_mcmc(starting_positions,nsteps)
         lnprob=sampler.lnprobability
         
-        #check that the line integral you're getting is above 215, the minimum probability you would get if you summed
+        #check that the line integral you're getting is above XX, the minimum reasonable probability you would get if you summed
         #over the "true" reddening profile given by the above distance array
         
         self.assertTrue(lnprob[0,0,0]>5.00)
@@ -86,7 +86,7 @@ class ModelTestCasePrior(unittest.TestCase):
         #set up the walkers outside the prior bounds, so we should hopefully return -np.inf
         result=[0,5,5,5,5,3,7.75,8,8,8,14,20]
 
-        #set up starting positions, all at same distance with known probability 
+        #set up starting positions, all at same distance with known probability (-np.inf)
         starting_positions = [[result for i in range(nwalkers)] for j in range(ntemps)]
 
         #set up the sampler object
@@ -95,9 +95,7 @@ class ModelTestCasePrior(unittest.TestCase):
         sampler.run_mcmc(starting_positions,nsteps)
         lnprob=sampler.lnprobability
         
-        #check that the line integral you're getting is above 215, the minimum probability you would get if you summed
-        #over the "true" reddening profile given by the above distance array
-        
+        #check that the line integral you're getting is -np.inf since we instantiated our walkers outside the prior bounds         
         self.assertTrue(lnprob[0,0,0]==-np.inf)
     
       
