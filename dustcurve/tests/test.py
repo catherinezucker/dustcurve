@@ -70,7 +70,7 @@ class ModelTestCase(unittest.TestCase):
         #check that the line integral you're getting is above XX, the minimum reasonable probability you would get if you summed
         #over the "true" reddening profile given by the above distance array
         
-        self.assertTrue(lnprob[0,0,0]>5.00)
+        self.assertTrue(lnprob[0,0,0]>100.0)
 
 #test model module pt 2 
 class ModelTestCasePrior(unittest.TestCase): 
