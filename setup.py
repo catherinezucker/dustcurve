@@ -12,8 +12,8 @@ setup(name='dustcurve',
           'matplotlib',
           'emcee',
           'numpy',
-          'scipy'
-          'seaborn'
+          'scipy',
+          'seaborn',
           'pandas'
       ],
       dependency_links=['https://github.com/h5py/h5py.git'],
