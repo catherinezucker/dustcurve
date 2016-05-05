@@ -14,6 +14,9 @@ setup(name='dustcurve',
           'numpy',
           'scipy'
       ],
+      dependency_links=['https://github.com/h5py/h5py.git']
       test_suite='nose.collector',
       tests_require=['nose'],
       zip_safe=False)
+      
+      
