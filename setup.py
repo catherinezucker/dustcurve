@@ -8,11 +8,11 @@ setup(name='dustcurve',
       author_email='catherine.zucker@cfa.harvard.edu',
       packages=['dustcurve'],
       install_requires=[
-          'numpy',
+          'h5py',
           'matplotlib',
           'emcee',
           'spectral-cube',
-          'h5py',
+          'numpy',
           'scipy'
       ],
       test_suite='nose.collector',
