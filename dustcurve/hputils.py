@@ -1,4 +1,4 @@
-#code adapted from github.com/ggreen/bayestar/scripts/hputils.py
+#code pulled and partially adapted from github.com/ggreen/bayestar/scripts/hputils.py, available under GNU public license
 
 import numpy as np
 import healpy as hp
