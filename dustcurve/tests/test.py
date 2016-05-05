@@ -26,7 +26,6 @@ class IOTestCase(unittest.TestCase):
       ldata,pdata = io.fetch_args('simulated_data.h5', [4,19], 1.0)
       # Are the arguments returned in the right format? 
       self.assertTrue(pdata.shape==(2,1))
-      self.assertTrue(
       #Is the CO data array the right shape?
       self.assertTrue(pixTest.get_co()[0,:].shape==(12))
       
