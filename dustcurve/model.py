@@ -4,12 +4,13 @@ import matplotlib.pyplot as plt
 from scipy.stats import norm
 
 
-#define global array for calculating the uncertainty on the reddening, which varies depending on the number of slices summed
+#define global array used for calculating the uncertainty on the reddening, which varies depending on the number of slices summed
 nslices=12
 weight0=np.zeros((12))
 weight1=np.zeros((12))
 weight2=np.zeros((12))
 
+#only for loop in code; not in likelihood function, so won't add much additional computational time 
 for i in range(0,nslices):
     #calculate standard deviation of the Gaussian describing the uncertainty in the reddening, which increases as number of slices increases 
     #std adds in quadrature with the std of the convolved Gaussian given by c^2=c1^2+c2^2
@@ -38,11 +39,22 @@ def get_line_integral(stellar_index,co_array,post_array,dist_array,coeff_array,o
         coeff_array: array of dust-to-gas coefficients for the slices from MCMC
         order: an array which sorts dist_array and co_array in ascending order
     """
-    dbins, redbins=convert_to_bins(co_array[stellar_index,:][order],dist_array, coeff_array)
-    prob=flatten_prob_path(post_array[stellar_index,:,:],dbins,redbins)
+    nslices=12
+    
+    dbins, redbins=convert_to_bins(co_array[stellar_index,:][order],dist_array, coeff_array) #convert actual distance and reddening to dist/reddening bins
+    v_flatten_prob_path=np.vectorize(flatten_prob_path)
+    
+    v_flatten_prob_path.excluded.add(0)
+    v_flatten_prob_path.excluded.add(1)
+    v_flatten_prob_path.excluded.add(2)
+    
+    slice_array=np.arange(0,nslices)
+    
+    #sum probability over all reddening ledges
+    prob_star=np.sum(v_flatten_prob_path(post_array[stellar_index,:,:],dbins,redbins,slice_array))
     
     #return log likelihood for individual star
-    return np.log(prob)
+    return np.log(prob_star)
 
 def convert_to_bins(co_star, dist_array, coeff_array):
     """
@@ -75,10 +87,10 @@ def convert_to_bins(co_star, dist_array, coeff_array):
     return dbins, redbins
 
 
-def flatten_prob_path(post_star, dbins, redbins):
+def flatten_prob_path(post_star, dbins, redbins,i):
     """
     returns: 
-    psum: probability summed over the flattened path extracted from the reddening profile 
+    psum: probability summed over a single reddening ledge
               
     Parameters:
         post_star: 2D stellar posterior array for an individual star (shape=700x120)
@@ -86,29 +98,27 @@ def flatten_prob_path(post_star, dbins, redbins):
         rbins: an array of bin indicies in post_array corresponding to the reddening to each velocity slice 
     """
     nslices=12
+    
     #flatten the reddening profile along the reddening axis 
-    #store the probability bins corresponding to each reddening "ledge" 
-
-    psum=0
-    psum+=np.sum(post_star[0, 0:dbins[0]])  # sum first reddening ledge; assume no extinction before first distance bin and thus no uncertainty
-
-    for i in range(0,nslices-1):
-        #determine the probability on the reddening ledge, +/- 1 bin from the reddening ledge and +/-2 bins from reddening ledge (with appropriate weighting to each)
+    #return the probability bins corresponding to each reddening "ledge" 
+    
+    if i==0: #reddening ledge from bin 0 to first distance slice, and from first distance slice to second distance slice
         center_bin=np.sum(np.multiply(post_star[redbins[i],dbins[i]:dbins[i+1]],weight0[i]))
         pm_one=np.sum(np.multiply(post_star[redbins[i]+1,dbins[i]:dbins[i+1]],weight1[i]))+np.sum(np.multiply(post_star[redbins[i]-1,dbins[i]:dbins[i+1]],weight1[i]))
         pm_two=np.sum(np.multiply(post_star[redbins[i]+2,dbins[i]:dbins[i+1]],weight2[i]))+np.sum(np.multiply(post_star[redbins[i]-2,dbins[i]:dbins[i+1]],weight2[i]))
-
-        psum+=center_bin+pm_one+pm_two
-
-    #for final reddening ledge
-    center_bin=np.sum(np.multiply(post_star[redbins[-1],dbins[-1]:119],weight0[-1]))
-    pm_one=np.sum(np.multiply(post_star[redbins[-1]+1,dbins[-1]:119],weight1[-1]))+np.sum(np.multiply(post_star[redbins[-1]-1,dbins[i]:119],weight1[-1]))
-    pm_two=np.sum(np.multiply(post_star[redbins[-1]+2,dbins[-1]:119],weight2[-1]))+np.sum(np.multiply(post_star[redbins[-1]-2,dbins[i]:119],weight2[-1]))
-    
-    psum+=center_bin+pm_one+pm_two
-
-    return psum
-
+        return center_bin+pm_one+pm_two + np.sum(post_star[0, 0:dbins[0]])  
+        
+    elif i==(nslices-1): #reddening ledge from the last distance bin to the end of the array
+        center_bin=np.sum(np.multiply(post_star[redbins[-1],dbins[-1]:119],weight0[-1]))
+        pm_one=np.sum(np.multiply(post_star[redbins[-1]+1,dbins[-1]:119],weight1[-1]))+np.sum(np.multiply(post_star[redbins[-1]-1,dbins[i]:119],weight1[-1]))
+        pm_two=np.sum(np.multiply(post_star[redbins[-1]+2,dbins[-1]:119],weight2[-1]))+np.sum(np.multiply(post_star[redbins[-1]-2,dbins[i]:119],weight2[-1]))
+        return center_bin+pm_one+pm_two
+        
+    else: #all other reddening ledges
+        center_bin=np.sum(np.multiply(post_star[redbins[i],dbins[i]:dbins[i+1]],weight0[i]))
+        pm_one=np.sum(np.multiply(post_star[redbins[i]+1,dbins[i]:dbins[i+1]],weight1[i]))+np.sum(np.multiply(post_star[redbins[i]-1,dbins[i]:dbins[i+1]],weight1[i]))
+        pm_two=np.sum(np.multiply(post_star[redbins[i]+2,dbins[i]:dbins[i+1]],weight2[i]))+np.sum(np.multiply(post_star[redbins[i]-2,dbins[i]:dbins[i+1]],weight2[i]))
+        return center_bin+pm_one+pm_two
         
 def log_prior(theta,bounds):
     """
