@@ -14,9 +14,8 @@ setup(name='dustcurve',
           'emcee',
           'spectral_cube', #only if using repackage_data.py, not if running MCMC
           'healpy',
-          'h5py'
-          'scipy'
-          'warnings' #to supress emcee's PTSampler deprecation warnings
+          'h5py',
+          'scipy',
       ],
       test_suite='nose.collector',
       tests_require=['nose'],
