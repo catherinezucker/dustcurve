@@ -4,6 +4,10 @@ This package uses the stellar posteriors on distance and reddening for individua
 1) The joint posterior of distance and reddening for each star. This is a 700x120 array, with 700 reddening bins (from 0 to 7 magnitudes in reddening) and 120 distance modulus bins (from 4-19 in distance modulus). These posteriors are pulled from the work of Green et al. 2014 and Green et al. 2015.  Each bin is filled with a value representing the probability in that bin.  
 2) The CO emission intensity for every pixel for every velocity slice in our field of interest (CO cubes are from the Dame et al. 2001 CO survey).  
 
+## Installation
+You can install this package by cloning the repository via the terminal ("git clone https://github.com/p201-sp2016/dustcurve.git") and then running "python setup.py install" within the root directory. However, you need to first install the python package h5py before you install dustcurve. H5py is dependent on a c library which can only be installed through "conda install h5py" and not through setup.py. If you do not first conda install h5py, you will get import h5py errors when attempting to run files like model.ipynb
+
+
 ## Files:
 
 - model.ipynb : A jupyter notebook containing details of our statistical modeling, and the application of our analysis to simulated data
