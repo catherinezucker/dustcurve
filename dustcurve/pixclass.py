@@ -1,6 +1,6 @@
 import h5py
 
-#adapted from class in https://github.com/bayestar/hdf5io.py
+#adapted from class in https://github.com/bayestar/hdf5io.py, available under a GNU public license
 #this class reads in data from a repackaged hdf5 file and stores the stellar posteriors and co data from stars in the given pixel
 class PixStars:
 	def __init__(self, fname=None):
