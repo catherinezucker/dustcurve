@@ -8,7 +8,6 @@ setup(name='dustcurve',
       author_email='catherine.zucker@cfa.harvard.edu',
       packages=['dustcurve'],
       install_requires=[
-          'h5py>=2.5.0',
           'matplotlib',
           'emcee',
           'numpy',
