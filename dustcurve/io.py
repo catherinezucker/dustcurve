@@ -29,8 +29,14 @@ def fetch_args(fnames, bounds, ratio):
             unique_stars=np.asarray(np.where(np.equal(unique_co[i], co_array).all(axis=1)))
             indices.append(unique_stars)
 
+
+	#make unique posterior arrays
+	unique_post = []
+	for i in range(unique_co.shape[0]):
+		unique_post.append(post_array[indices[i],:,:][0])
+
         #package and return data
-        ldata=(unique_co,indices,post_array,ratio)
+        ldata=(unique_co,indices,unique_post,ratio)
         pdata=(np.asarray(bounds,dtype='f'))
         print("Total number of stars used in analysis:", nstars)
         return ldata,pdata    
@@ -60,8 +66,12 @@ def fetch_args(fnames, bounds, ratio):
             unique_stars=np.asarray(np.where(np.equal(unique_co[i], co_all).all(axis=1)))
             indices.append(unique_stars)
 
+	unique_post = []
+	for i in range(unique_co.shape[0]):
+		unique_post.append(post_all[indices[i],:,:][0])
+
         #package and return data
-        ldata=(unique_co,indices,post_all,ratio)
+        ldata=(unique_co,indices,unique_post,ratio)
         pdata=(np.asarray(bounds,dtype='f'))
         print("Total number of stars used in analysis:", nstars_all)
         return ldata,pdata

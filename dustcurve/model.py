@@ -7,15 +7,15 @@ from dustcurve import pixclass
 dmin, dmu=(4.0, 0.125)
 rmin, dr=(0.0, 0.01)
 
-def get_line_integral(num_batch,unique_co,indices,post_array,dist_array,coeff_array):
+def get_line_integral(num_batch,unique_co,indices,unique_post,dist_array,coeff_array):
     """
     returns line integral over stellar posterior for individual star
 
     Parameters:
-        co_index: The index corresponding to a unique Dame et al. 2001 pixel
+	num_batch: the index of the batch of stars being used 
         unique_co: an array containing all unique sets of CO intensities 
-        co_array: 2D array of CO intensities for all stars (shape=nstarsxnslices)
-        post_array: 3D stellar posterior array containing posteriors for all stars (shape=nstarsx700x120)
+	indices: list of length nbatch, with each element being an array of star indices belonging to that batch (UNUSED)
+	unique_post: list of length nbatch, containing a 3D array of 700x120 stellar posterior arrays for all stars in that batch (shape=nstarsx700x120)
         dist_array: array of distances to the slices from MCMC
         coeff_array: array of dust-to-gas coefficients for the slices from MCMC
     """
@@ -27,7 +27,7 @@ def get_line_integral(num_batch,unique_co,indices,post_array,dist_array,coeff_ar
     redbins=np.divide(np.subtract(np.cumsum(np.multiply(unique_co[num_batch],coeff_array)).clip(min=0,max=6.99),rmin), dr).astype(int)
 
     #extract reddening profile along each array; creates 2D array of size nstarsx120 where nstars is the number of stars in the CO pixel
-    unique_post=post_array[indices[num_batch],:,:][0]
+    unique_post=unique_post[num_batch]
 
     #return an array of likelihoods for the batch of stars with a unique set of CO intensities; this is "L_good" in the context of mixture model
     unique_likelihoods=np.sum(unique_post[:,np.repeat(np.insert(redbins,0,0),np.ediff1d(dbins,to_end=120-dbins[-1],to_begin=dbins[0])),np.arange(0,120)],axis=1)
@@ -57,15 +57,15 @@ def log_prior(theta,bounds):
 
     return 0
 
-def log_likelihood(theta,unique_co,indices,post_array,ratio):
+def log_likelihood(theta,unique_co,indices,unique_post,ratio):
     """
     returns log of likelihood for all the stars in a single pixel
 
     Parameters:
         theta: model parameters (specified as a tuple)
-        co_array: 2D (shape=nstarsxnslices) array of CO intensities for all stars
-        post_array: set of 700x120 stellar posterior arrays all stars (shape=nstarsx700x120)
-        nstars: integer storing the number of stars in the file
+        unique_co: 2D (shape=nbatch x nslices) array of CO intensities for each batch
+	indices: list of length nbatch, with each element being an array of star indices belonging to that batch
+        unique_post: list of length nbatch, containing a 3D array of 700x120 stellar posterior arrays for all stars in that batch (shape=nstarsx700x120)
         ratio: the gas-to-dust coefficient
     """
     dist_array=theta[0:int(len(theta)/2)]
@@ -79,7 +79,7 @@ def log_likelihood(theta,unique_co,indices,post_array,ratio):
     num_batches=np.arange(0,unique_co.shape[0])
 
     #construct an array holding the likelihood probability for each individual star and return the sum of the log likelihoods for all the stars
-    return (np.sum(np.array(v_get_line_integral(num_batches,unique_co,indices,post_array,dist_array,coeff_array))))
+    return (np.sum(np.array(v_get_line_integral(num_batches,unique_co,indices,unique_post,dist_array,coeff_array))))
 
 def log_posterior(theta,co_array,post_array,bounds,ratio):
     """
