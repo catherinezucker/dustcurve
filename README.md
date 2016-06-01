@@ -20,7 +20,6 @@ Moreover, there are two python packages required to run repackage_data.py that a
 - hputils.py & repackage_data.py: modules used to convert the raw data into a more MCMC-friendly format. These modules were used to create the data used in tutorial.ipynb, 89996.h5, which is all the data for the center of the Cepheus cloud. These files are provided for reference, and are not meant to be run by a general user. Repackage_data.py in particular contains user specific directory paths that won't work unless on a specific machine. See our note on setup.py below for more.  
 - Cepheus.fits: spectral cube data used in our tutorial.ipynb file. Not necessary to run the MCMC code unless you want to use the script repackage_data.py
 
-## Important note on model modules
-We include two modules for our model, one in which we include the uncertainty on the CO measurements in our calculations (modelunc.py) and one where we do not (model.py). Despite taking the time to vectorize all aspects of the likelihood function in the model with uncertainty, it takes significantly (at least 3-10x longer) to run the same code. We attribute this to the computational burden of having to extract not only the central reddening ledge, but also the reddening ledges immediately adjacent to it, as well as multiply each element of these arrays by the appropriate weighting factor. While both modules produce identical results in terms of the simulation data, we provide both modules for convenience, as the uncertainty is expected to minimally effect the final results. Simply import whichever one suits your needs! For reference, the simulation data takes ~5-10 minutes to run without uncertainty, and between 20-45 minutes to run with uncertainty (on my macbook pro)!
+
 
 
