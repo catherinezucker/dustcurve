@@ -1,6 +1,9 @@
 #the normalization component of this code is taken from the plot_fit function, found in the fitsurfs.py program written by Eddie Schlafly
 #This can be originally found at ~schlafly/dustsl/python/fitsurfs.py:plot_fit
 
+import numpy as np
+import matplotlib.pyplot as plt
+
 def plot_posterior(post_array,xpts,ypts,best,ratio,unique_co):
     #normalize stellar posterior surfaces
     dispsurf = post_array.copy()
