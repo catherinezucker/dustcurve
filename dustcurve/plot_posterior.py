@@ -42,7 +42,7 @@ def plot_posterior(post_array,xpts,ypts,best,ratio,unique_co,x_range,y_range):
         profilex=np.linspace(4,19,1500)
 
     #plot
-        ax.plot(profilex,profiley,alpha=0.15)
+        ax.plot(profilex,profiley,alpha=0.25)
         ax.set_xlim(x_range)
         ax.set_ylim(y_range)
     
