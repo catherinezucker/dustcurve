@@ -4,7 +4,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def plot_posterior(post_array,xpts,ypts,best,ratio,unique_co,x_range,y_range):
+def plot_posterior(post_array,xpts,ypts,best,ratio,unique_co,x_range=[4,19],y_range=[0,7], vmin=0, vmax=1.0):
     #normalize stellar posterior surfaces
     dispsurf = post_array.copy()
     dispsurf[~np.isfinite(dispsurf)] = 0
@@ -21,7 +21,7 @@ def plot_posterior(post_array,xpts,ypts,best,ratio,unique_co,x_range,y_range):
         dx = np.median(xpts[1:]-xpts[:-1])
         dy = np.median(ypts[1:]-ypts[:-1])
         extent = [xpts[0]-dx/2., xpts[-1]+dx/2.,ypts[0]-dy/2., ypts[-1]+dy/2.]
-    ax.imshow(totsurf,origin='lower',aspect='auto', cmap='binary', interpolation='nearest',extent=extent, vmin=0,vmax=1)
+    ax.imshow(totsurf,origin='lower',aspect='auto', cmap='binary', interpolation='nearest',extent=extent, vmin=vmin,vmax=vmax)
     ax.autoscale(False)
 
 
