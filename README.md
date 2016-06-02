@@ -18,7 +18,8 @@ Moreover, there are two python packages required to run repackage_data.py that a
 - pixclass.py : a class created to hold our data and metadata, called a PixStars object. In our case, it holds all the stellar posterior arrays, stellar coordinates, and CO intensity information for a single pixel 
 - io.py: A module that creates an instance of our class, a PixStar, and returns all the required arguments to run our parallel tempering sampler (PTSampler from the emcee class). It's primary function, fetch_args, accepts a filename, an array containing the lower and upper bounds of our uniform distance prior, and a desired gas-to-dust coefficient. 
 - hputils.py & repackage_data.py: modules used to convert the raw data into a more MCMC-friendly format. These modules were used to create the data used in tutorial.ipynb, 89996.h5, which is all the data for the center of the Cepheus cloud. These files are provided for reference, and are not meant to be run by a general user. Repackage_data.py in particular contains user specific directory paths that won't work unless on a specific machine. See our note on setup.py below for more.  
-- Cepheus.fits: spectral cube data used in our tutorial.ipynb file. Not necessary to run the MCMC code unless you want to use the script repackage_data.py
+- Cepheus_hires.fits: spectral cube data used in our tutorial.ipynb file. Not necessary to run the MCMC code unless you want to use the script repackage_data.py
+- Plot_posterior.py: plots the best fit reddening profiles overtop the stacked stellar posterior surface for the given pixel
 
 
 
