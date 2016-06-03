@@ -6,13 +6,13 @@ def gelman_rubin(chain_ensemble):
     chain_ensemble: the ensemble of chains to use; this paramater expects that the first nsteps/2 of each chain have already been discarded;
     chain_ensemble should be an array of the format nchains x nsteps x ndim
     """
-    nchains,nsteps,ndim=chain.shape
+    nchains,nsteps,ndim=chain_ensemble.shape
     
     #calculate the mean of each chain
-    mean=np.mean(chain,axis=1)
+    mean=np.mean(chain_ensemble,axis=1)
 
     #calculate the variance of each chain
-    wvar=np.var(chain,axis=1)
+    wvar=np.var(chain_ensemble,axis=1)
 
     #calculate the mean of the variances of each chain
     W=np.mean(wvar, axis=0)
