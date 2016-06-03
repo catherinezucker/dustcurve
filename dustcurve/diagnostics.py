@@ -5,6 +5,9 @@ def gelman_rubin(chain_ensemble):
     Parameters:
     chain_ensemble: the ensemble of chains to use; this paramater expects that the first nsteps/2 of each chain have already been discarded;
     chain_ensemble should be an array of the format nchains x nsteps x ndim
+    
+    for more info on GR diagnostic see: http://www.people.fas.harvard.edu/~plam/teaching/methods/convergence/convergence_print.pdf
+    
     """
     nchains,nsteps,ndim=chain_ensemble.shape
     
