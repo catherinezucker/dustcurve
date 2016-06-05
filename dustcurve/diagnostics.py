@@ -1,3 +1,14 @@
+import numpy as np
+import emcee
+from dustcurve import model
+import seaborn as sns
+import matplotlib.pyplot as plt
+import pandas as pd
+from dustcurve import io
+import warnings
+import line_profiler
+from dustcurve import plot_posterior
+from dustcurve import hputils
 
 def gelman_rubin(chain_ensemble):
     """
@@ -6,25 +17,88 @@ def gelman_rubin(chain_ensemble):
     chain_ensemble: the ensemble of chains to use; this paramater expects that the first nsteps/2 of each chain have already been discarded;
     chain_ensemble should be an array of the format nchains x nsteps x ndim
     """
-    nchains,nsteps,ndim=chain_ensemble.shape
-    
-    #calculate the mean of each chain
-    mean=np.mean(chain_ensemble,axis=1)
 
+    nchains,nsteps,ndim=chain_ensemble.shape
+
+    #calculate the mean of each chain
+    mean=np.mean(chain_ensemble,axis=2)
+    
     #calculate the variance of each chain
-    wvar=np.var(chain_ensemble,axis=1)
+    wvar=np.var(chain_ensemble,axis=2)
 
     #calculate the mean of the variances of each chain
     W=np.mean(wvar, axis=0)
 
     #calculate the variance of the chain means multiplied by n
-    B=nstep*np.var(mean, axis=0)
+    B=nsteps*np.var(mean, axis=0)
 
     #calculate estimated variance:
-    var_est=(1-1/nstep) * W + (1/nstep)*B
+    var_est=(1-1/nsteps) * W + (1/nsteps)*B
 
     #calculate the potential scale reduction factor
     R=np.sqrt(var_est/W)
 
     return R
 
+def run_chains(file, nwalkers=100, nsteps=1000, ntemps=5, bounds=[4,19,0,10], runs=5, ratio=0.06):
+
+    #set up sampler
+    fnames=file
+    nwalkers=nwalkers
+    nsteps=nsteps
+    ntemps=ntemps
+    bounds=bounds
+    ratio=ratio
+
+    ndim=24
+    nslices=12
+
+    #fetch the required likelihood and prior arguments for PTSampler
+    ldata,pdata=io.fetch_args(fnames,bounds,ratio)
+
+    #setting off the walkers at the kinematic distance given by the literature, assuming a flat rotation curve, theta=220 km/s, R=8.5 kpc
+    #Details on rotation curve given in Rosolowsky and Leroy 2006
+    vslices=np.linspace(-15.6,-1.3,12)
+    klong=np.ones(12)*hputils.pix2lb_scalar(int(fnames[:-3]))
+    klat=np.ones(12)*hputils.pix2lb_scalar(int(fnames[:-3]))
+    kdist=kdist.kdist(klong,klat,vslices)
+    kdistmod=5*np.log10(kdist)-5
+    result=kdistmod.tolist()
+    result.extend(1.0 for i in range (nslices))
+
+    chain_ensemble=np.empty((0))     
+                                 
+    for j in range(0,len(runs)):
+        #run for independent chains for Gelman-Rubin, with starting positions perturbed 
+        #slightly perturb the starting positions for each walker, in a ball centered around kinematic distances and literature gas-to-dust coefficient
+        #perturb according to a Gaussian of mean 0 and variance 1
+        starting_positions = [[result + np.random.randn(ndim) for i in range(nwalkers)] for j in range(ntemps)]
+
+        #set up the starting position array and add variance (up to 1 in distance modulus) to each walker 
+        starting_positions = [[result + np.random.randn(ndim) for i in range(nwalkers)] for j in range(ntemps)]
+
+        #set up the sampler object
+        sampler = emcee.PTSampler(ntemps, nwalkers, ndim, model.log_likelihood, model.log_prior, loglargs=(ldata), logpargs=[pdata])
+
+        #burn in, and save final positions for all parameters, which we'll then set off our walkers at for the "real" thing
+        post_burn_pos, prob, state = sampler.run_mcmc(starting_positions, 300)
+        sampler.reset()
+
+        #run the sampler
+        sampler.run_mcmc(post_burn_pos, nsteps)
+
+        #Extract the coldest [beta=1] temperature chain from the sampler object; discard first half of samples as burnin (required for GR diagnostic)
+        samples_cold = sampler.chain[0,:,int(nsteps/2:),:]
+        traces_cold = samples_cold.reshape(-1, ndim).T
+
+        chain_ensemble=chain_ensemble.append(traces_cold)
+
+    gr=gelman_rubin(chain_ensemble)
+    return gr, chain_ensemble                                       
+                                               
+
+
+                                           
+
+                                           
+                                  
