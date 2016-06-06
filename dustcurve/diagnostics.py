@@ -7,8 +7,8 @@ import pandas as pd
 from dustcurve import io
 import warnings
 import line_profiler
-from dustcurve import plot_posterior
 from dustcurve import hputils
+from dustcurve import kdist
 
 def gelman_rubin(chain_ensemble):
     """
@@ -43,10 +43,11 @@ def gelman_rubin(chain_ensemble):
 
     return R
 
-def run_chains(file, nwalkers=100, nsteps=1000, ntemps=5, bounds=[4,19,0,10], runs=5, ratio=0.06):
+def run_chains(fnames, nwalkers=100, nsteps=1000, ntemps=5, bounds=[4,19,0,10], runs=5, ratio=0.06):
+
+    from dustcurve import kdist
 
     #set up sampler
-    fnames=file
     nwalkers=nwalkers
     nsteps=nsteps
     ntemps=ntemps
@@ -62,16 +63,16 @@ def run_chains(file, nwalkers=100, nsteps=1000, ntemps=5, bounds=[4,19,0,10], ru
     #setting off the walkers at the kinematic distance given by the literature, assuming a flat rotation curve, theta=220 km/s, R=8.5 kpc
     #Details on rotation curve given in Rosolowsky and Leroy 2006
     vslices=np.linspace(-15.6,-1.3,12)
-    klong=np.ones(12)*hputils.pix2lb_scalar(int(fnames[:-3]))
-    klat=np.ones(12)*hputils.pix2lb_scalar(int(fnames[:-3]))
+    klong=np.ones(12)*hputils.pix2lb_scalar(128,int(fnames[:-3]))[0]
+    klat=np.ones(12)*hputils.pix2lb_scalar(128,int(fnames[:-3]))[1]
     kdist=kdist.kdist(klong,klat,vslices)
     kdistmod=5*np.log10(kdist)-5
     result=kdistmod.tolist()
     result.extend(1.0 for i in range (nslices))
 
-    chain_ensemble=np.empty((0))     
+    chain_ensemble=[]
                                  
-    for j in range(0,len(runs)):
+    for j in range(0,runs):
         #run for independent chains for Gelman-Rubin, with starting positions perturbed 
         #slightly perturb the starting positions for each walker, in a ball centered around kinematic distances and literature gas-to-dust coefficient
         #perturb according to a Gaussian of mean 0 and variance 1
@@ -91,10 +92,13 @@ def run_chains(file, nwalkers=100, nsteps=1000, ntemps=5, bounds=[4,19,0,10], ru
         sampler.run_mcmc(post_burn_pos, nsteps)
 
         #Extract the coldest [beta=1] temperature chain from the sampler object; discard first half of samples as burnin (required for GR diagnostic)
-        samples_cold = sampler.chain[0,:,int(nsteps/2:),:]
+        samples_cold = sampler.chain[0,:,int(nsteps/2):,:]
         traces_cold = samples_cold.reshape(-1, ndim).T
 
-        chain_ensemble=chain_ensemble.append(traces_cold)
+        chain_ensemble.append(traces_cold)
+        
+    #convert into array of shape nchains x nsteps x ndim
+    chain_ensemble=np.array(chain_ensemble)
 
     gr=gelman_rubin(chain_ensemble)
     return gr, chain_ensemble                                       
