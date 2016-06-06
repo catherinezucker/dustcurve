@@ -4,12 +4,18 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def plot_posterior(post_array,xpts,ypts,best,ratio,unique_co,x_range=[4,19],y_range=[0,7], vmin=0, vmax=1.0):
+def plot_posterior(post_array,xpts,ypts,best,ratio,unique_co,x_range=[4,19],y_range=[0,7], vmin=0, vmax=1.0, normcol=True):
     #normalize stellar posterior surfaces
     dispsurf = post_array.copy()
     dispsurf[~np.isfinite(dispsurf)] = 0
     norm = np.sum(np.sum(dispsurf, axis=1), axis=1)+1.e-40
     totsurf = np.sum(dispsurf/norm.reshape(-1,1,1), axis=0)
+
+    if normcol==True:
+    #normalize so every distance column has same amount of ink
+        colmin = np.min(totsurf, axis=0)
+        dispsurf = totsurf-colmin.reshape(1,-1)
+        dispsurf = dispsurf/np.sum(dispsurf, axis=0).reshape(1,-1)
 
     #setup and plot normalized stacked stellar posterior
     fig = plt.figure()
@@ -21,9 +27,8 @@ def plot_posterior(post_array,xpts,ypts,best,ratio,unique_co,x_range=[4,19],y_ra
         dx = np.median(xpts[1:]-xpts[:-1])
         dy = np.median(ypts[1:]-ypts[:-1])
         extent = [xpts[0]-dx/2., xpts[-1]+dx/2.,ypts[0]-dy/2., ypts[-1]+dy/2.]
-    ax.imshow(totsurf,origin='lower',aspect='auto', cmap='binary', interpolation='nearest',extent=extent, vmin=vmin,vmax=vmax)
+    ax.imshow(dispsurf,origin='lower',aspect='auto', cmap='binary', interpolation='nearest',extent=extent, vmin=vmin,vmax=vmax)
     ax.autoscale(False)
-
 
     #determine the reddening profile
     distances=best[0:int(len(best)/2)]
