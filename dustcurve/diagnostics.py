@@ -24,10 +24,10 @@ def gelman_rubin(chain_ensemble):
     nchains,nsteps,ndim=chain_ensemble.shape
 
     #calculate the mean of each chain
-    mean=np.mean(chain_ensemble,axis=2)
+    mean=np.mean(chain_ensemble,axis=1)
     
     #calculate the variance of each chain
-    wvar=np.var(chain_ensemble,axis=2)
+    wvar=np.var(chain_ensemble,axis=1)
 
     #calculate the mean of the variances of each chain
     W=np.mean(wvar, axis=0)
@@ -82,9 +82,6 @@ def run_chains(fnames, nwalkers=100, nsteps=1000, ntemps=5, bounds=[4,19,0,10], 
         #run for independent chains for Gelman-Rubin, with starting positions perturbed 
         #slightly perturb the starting positions for each walker, in a ball centered around kinematic distances and literature gas-to-dust coefficient
         #perturb according to a Gaussian of mean 0 and variance 1
-        starting_positions = [[result + np.random.randn(ndim) for i in range(nwalkers)] for j in range(ntemps)]
-
-        #set up the starting position array and add variance (up to 1 in distance modulus) to each walker 
         starting_positions = [[result + np.random.randn(ndim) for i in range(nwalkers)] for j in range(ntemps)]
 
         #set up the sampler object
