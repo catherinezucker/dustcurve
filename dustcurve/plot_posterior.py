@@ -4,7 +4,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def plot_posterior(post_array,xpts,ypts,best,ratio,unique_co,x_range=[4,19],y_range=[0,7], vmin=0, vmax=1.0, normcol=True):
+def plot_posterior(post_array,xpts,ypts,best,ratio,unique_co,x_range=[4,19],y_range=[0,7],normcol=False, vmin=0.0, vmax=0.03):
     #normalize stellar posterior surfaces
     dispsurf = post_array.copy()
     dispsurf[~np.isfinite(dispsurf)] = 0
@@ -16,6 +16,9 @@ def plot_posterior(post_array,xpts,ypts,best,ratio,unique_co,x_range=[4,19],y_ra
         colmin = np.min(totsurf, axis=0)
         dispsurf = totsurf-colmin.reshape(1,-1)
         dispsurf = dispsurf/np.sum(dispsurf, axis=0).reshape(1,-1)
+    
+    else:
+        dispsurf=totsurf.copy()
 
     #setup and plot normalized stacked stellar posterior
     fig = plt.figure()
