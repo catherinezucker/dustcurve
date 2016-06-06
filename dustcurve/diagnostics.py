@@ -43,7 +43,7 @@ def gelman_rubin(chain_ensemble):
 
     return R
 
-def run_chains(fnames, nwalkers=100, nsteps=1000, ntemps=5, bounds=[4,19,0,10], runs=5, ratio=0.06):
+def run_chains(fnames, nwalkers=100, nsteps=1000, ntemps=5, bounds=[4,19,0,10], runs=5, ratio=0.06, simulated=False):
 
     from dustcurve import kdist
 
@@ -62,13 +62,19 @@ def run_chains(fnames, nwalkers=100, nsteps=1000, ntemps=5, bounds=[4,19,0,10], 
 
     #setting off the walkers at the kinematic distance given by the literature, assuming a flat rotation curve, theta=220 km/s, R=8.5 kpc
     #Details on rotation curve given in Rosolowsky and Leroy 2006
-    vslices=np.linspace(-15.6,-1.3,12)
-    klong=np.ones(12)*hputils.pix2lb_scalar(128,int(fnames[:-3]))[0]
-    klat=np.ones(12)*hputils.pix2lb_scalar(128,int(fnames[:-3]))[1]
-    kdist=kdist.kdist(klong,klat,vslices)
-    kdistmod=5*np.log10(kdist)-5
-    result=kdistmod.tolist()
-    result.extend(1.0 for i in range (nslices))
+    if simulated==False:
+        vslices=np.linspace(-15.6,-1.3,12)
+        klong=np.ones(12)*hputils.pix2lb_scalar(128,int(fnames[:-3]))[0]
+        klat=np.ones(12)*hputils.pix2lb_scalar(128,int(fnames[:-3]))[1]
+        kdist=kdist.kdist(klong,klat,vslices)
+        kdistmod=5*np.log10(kdist)-5
+        result=kdistmod.tolist()
+        result.extend(1.0 for i in range (nslices))
+    else:
+        result=[np.random.randint(4,19) for i in range(nslices)]
+        result[6]=np.random.uniform(8,11)
+        result[10]=np.random.uniform(14,17)
+        result.extend(1.0 for i in range(nslices))
 
     chain_ensemble=[]
                                  
