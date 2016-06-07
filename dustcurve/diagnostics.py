@@ -18,29 +18,33 @@ def gelman_rubin(chain_ensemble):
     chain_ensemble should be an array of the format nchains x nsteps x ndim
     
     for more info on GR diagnostic see: http://www.people.fas.harvard.edu/~plam/teaching/methods/convergence/convergence_print.pdf
-    
+
+    code adapted from function github.com/hmc/convergence.py available under GNU open source license
     """
 
-    nchains,nsteps,ndim=chain_ensemble.shape
+    nruns,nsteps,ndim=chain_ensemble.shape
 
     #calculate the mean of each chain
-    mean=np.mean(chain_ensemble,axis=1)
-    
+    mean=np.mean(chain_ensemble,axis=2)
+        
     #calculate the variance of each chain
-    wvar=np.var(chain_ensemble,axis=1)
-
+    var=np.var(chain_ensemble,axis=2)
+    
     #calculate the mean of the variances of each chain
-    W=np.mean(wvar, axis=0)
+    W=np.mean(var, axis=0)
 
     #calculate the variance of the chain means multiplied by n
     B=nsteps*np.var(mean, axis=0)
 
     #calculate estimated variance:
-    var_est=(1-1/nsteps) * W + (1/nsteps)*B
+    sigmasq=(1-1/nsteps) * W + (1/nsteps)*B
+
+    #sampling variability
+    V=sigmasq+B/(nruns*nsteps)
 
     #calculate the potential scale reduction factor
-    R=np.sqrt(var_est/W)
-
+    R=V/W
+    
     return R
 
 def run_chains(fnames, nwalkers=100, nsteps=1000, ntemps=5, bounds=[4,19,0,10], runs=5, ratio=0.06, simulated=False):
@@ -64,8 +68,8 @@ def run_chains(fnames, nwalkers=100, nsteps=1000, ntemps=5, bounds=[4,19,0,10], 
     #Details on rotation curve given in Rosolowsky and Leroy 2006
     if simulated==False:
         vslices=np.linspace(-15.6,-1.3,12)
-        klong=np.ones(12)*hputils.pix2lb_scalar(128,int(fnames[:-3]))[0]
-        klat=np.ones(12)*hputils.pix2lb_scalar(128,int(fnames[:-3]))[1]
+        klong=np.ones(12)*hputils.pix2lb_scalar(256,int(fnames[:-3]))[0]
+        klat=np.ones(12)*hputils.pix2lb_scalar(256,int(fnames[:-3]))[1]
         kdist=kdist.kdist(klong,klat,vslices)
         kdistmod=5*np.log10(kdist)-5
         result=kdistmod.tolist()
