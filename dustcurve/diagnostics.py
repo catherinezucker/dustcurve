@@ -28,13 +28,13 @@ def gelman_rubin(chain_ensemble):
     mean=np.mean(chain_ensemble,axis=2)
         
     #calculate the variance of each chain
-    var=np.var(chain_ensemble,axis=2)
+    var=np.var(chain_ensemble,axis=2, ddof=1)
     
     #calculate the mean of the variances of each chain
     W=np.mean(var, axis=0)
 
     #calculate the variance of the chain means multiplied by n
-    B=nsteps*np.var(mean, axis=0)
+    B=nsteps*np.var(mean, axis=0, ddof=1)
 
     #calculate estimated variance:
     sigmasq=(1-1/nsteps) * W + (1/nsteps)*B
