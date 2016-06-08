@@ -37,20 +37,22 @@ def plot_posterior(post_array,xpts,ypts,best,ratio,unique_co,x_range=[4,19],y_ra
     distances=best[0:int(len(best)/2)]
     coefficients=best[int(len(best)/2):]
     order=np.argsort(distances)
+    
     distances=distances[order]
     distances=np.around(distances,2)
-    reddenings=np.cumsum(np.multiply(unique_co,ratio))
+    coefficients=coefficients[order]
     
     for i in range(0,len(unique_co)):
     #convert the actual distance and reddening into something plottable
         unique_co[i]=unique_co[i][order]
-        reddenings=np.cumsum(np.multiply(unique_co[i],ratio))
+        conversion=np.multiply(coefficients,ratio)
+        reddening=np.cumsum(np.multiply(unique_co[i],conversion))
         repeats=np.around((np.ediff1d(distances,to_end=19.0-distances[-1],to_begin=distances[0]-4)/0.01),0)
-        profiley=np.repeat(np.insert(reddenings,0,0),repeats.astype(int))
+        profiley=np.repeat(np.insert(reddening,0,0),repeats.astype(int))
         profilex=np.linspace(4,19,1500)
+        print(i)
 
     #plot
-        ax.plot(profilex,profiley,alpha=0.25)
+        ax.plot(profilex,profiley,alpha=0.5)
         ax.set_xlim(x_range)
         ax.set_ylim(y_range)
-    
