@@ -47,15 +47,13 @@ def log_prior(theta,bounds):
     bounds: an array of the format [lowerbound, upperbound] specifying the prior range on distance
 
     """
+    #flat prior on distance
     #check that distances (first half of theta array) are within acceptable bounds
     if ((theta[0:int(len(theta)/2)]<bounds[0]) | (theta[0:int(len(theta)/2)]>bounds[1])).any()==True:
         return -np.inf
-
-    #check that coefficients (second half of theta array) are within acceptable bounds
-    if ((theta[int(len(theta)/2):]<bounds[2]) | (theta[int(len(theta)/2):]>bounds[3])).any()==True:
-        return -np.inf
-
-    return 0
+    #log-normal prior on coefficients
+    else:
+        return np.sum(-1*(np.log(theta[int(len(theta)/2):])**2)/(2*bounds[2]**2))
 
 def log_likelihood(theta,unique_co,indices,unique_post,ratio):
     """
@@ -92,7 +90,7 @@ def log_posterior(theta,co_array,post_array,bounds,ratio):
         n_stars: integer storing the number of stars in the file
         ratio: the gas-to-dust coefficient
     """
-    return log_prior(theta,bounds) + log_likelihood(theta,unique_co,indices,post_array,ratio)
+    return log_prior(theta,bounds) + log_likelihood(theta,unique_co,indices,unique_post,ratio)
 
 #vectorize only the stellar index component of get_line_integral; exclude all other components
 v_get_line_integral=np.vectorize(get_line_integral,otypes=[np.float])

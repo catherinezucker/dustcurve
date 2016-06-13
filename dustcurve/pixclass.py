@@ -17,16 +17,18 @@ class PixStars:
 				close = True
 			dpdfs = f['/stellar_pdfs']
 			dco = f['/co_data']
+			dcoord=f['/coord_data']
 		
-		self.load(dpdfs,dco)
+		self.load(dpdfs,dco,dcoord)
 		
 		if close:
 			f.close()
 	
-	def load(self, dpdfs, dco):
+	def load(self, dpdfs, dco, dcoord):
 		self.nImages = dpdfs.shape[0]
 		self.p = dpdfs[:,:,:]
 		self.co=dco[:,:]
+		self.coord=dcoord[:,:]
 	
 	#return the stellar posteriors for all the stars in the pixel
 	def get_p(self, imgIdx=None):
@@ -39,6 +41,13 @@ class PixStars:
 	def get_co(self, imgIdx=None):
 		if imgIdx == None:
 			return self.co
+		else:
+			return self.co[imgIdx]
+
+	#return the stellar coordinate data for all the stars in the pixel
+	def get_coords(self, imgIdx=None):
+		if imgIdx == None:
+			return self.coord
 		else:
 			return self.co[imgIdx]
 	

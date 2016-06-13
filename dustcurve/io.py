@@ -1,6 +1,8 @@
 from dustcurve import pixclass
 import numpy as np
 
+nslices=6
+
 def fetch_args(fnames, bounds, ratio):
     """
     returns: ldata= the likelihood arguments for running emcee's PTSampler ("loglargs")
@@ -43,8 +45,8 @@ def fetch_args(fnames, bounds, ratio):
 
     #several healpix pixels
     else:
-        co_all=np.empty(1)
-        post_all=np.empty(1)
+        co_all=np.empty((0,nslices))
+        post_all=np.empty((0,700,120))
         nstars_all=0
 
         for file in fnames:
@@ -53,8 +55,8 @@ def fetch_args(fnames, bounds, ratio):
             post_array=np.asarray(pixObj.get_p()[:,:,:])
             nstars=pixObj.get_n_stars()
 
-            co_all=np.append(co_all,co_array)
-            post_all=np.append(post_all,post_array)
+            co_all=np.vstack((co_all,co_array))
+            post_all=np.vstack((post_all,post_array))
             nstars_all+=nstars
         
         #find unique co intensity arrays
