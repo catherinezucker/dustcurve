@@ -1,18 +1,22 @@
 from dustcurve import pixclass
 import numpy as np
+import multiprocessing
+import ctypes
+import sys
+import mmap
+from multiprocessing.sharedctypes import Array
 
 nslices=6
 
-def fetch_args(fnames, bounds, ratio):
+def fetch_args(fnames):
     """
     returns: ldata= the likelihood arguments for running emcee's PTSampler ("loglargs")
              pdata= the prior arguments for running emcee's PTSampler ("logpargs")
              
     Parameters:
         fname: filenames of the pixels you want to read in (a string or array of strings)
-        the bounds you'd like for your uniform prior (given in the format [lowerbound, upperbound]); must be confined to within 4-19 in distance modulus
+        the bounds you'd like for your uniform prior on distance and the sigma value you'd like for the log-normal prior on coefficients; format=[lower_dist, upper_dist, sigma]        
         ratio: the gas-to-dust conversion coefficient you'd like to adopt (a float)
-
 
     """
     #one healpix pixel
@@ -26,22 +30,22 @@ def fetch_args(fnames, bounds, ratio):
         sorted_co = co_array[np.lexsort(co_array.T)]
         unique_co=sorted_co[np.concatenate(([True], np.any(sorted_co[1:] != sorted_co[:-1],axis=1)))]
 
+        #find the indices in stacked stellar posterior array corresponding to these intensities
         indices=[]
         for i in range(unique_co.shape[0]):
             unique_stars=np.asarray(np.where(np.equal(unique_co[i], co_array).all(axis=1)))
             indices.append(unique_stars)
 
-
-        #make unique posterior arrays
+        #group posterior arrays with same CO intensity together and store them in a list
         unique_post = []
         for i in range(unique_co.shape[0]):
             unique_post.append(post_array[indices[i],:,:][0])
 
-        #package and return data
-        ldata=(unique_co,indices,unique_post,ratio)
-        pdata=(np.asarray(bounds,dtype='f'))
         print("Total number of stars used in analysis:", nstars)
-        return ldata,pdata    
+
+        #save arrays to files, so they can then be read back in as global variables in the globalvars module
+        np.savez("unique_post", unique_post)
+        np.save("unique_co", np.array(unique_co))
 
     #several healpix pixels
     else:
@@ -62,22 +66,25 @@ def fetch_args(fnames, bounds, ratio):
         #find unique co intensity arrays
         sorted_co = co_all[np.lexsort(co_all.T)]
         unique_co=sorted_co[np.concatenate(([True], np.any(sorted_co[1:] != sorted_co[:-1],axis=1)))]
+        unique_co=np.array(unique_co)
 
+        #find the indices in stacked stellar posterior array corresponding to these intensities
         indices=[]
         for i in range(unique_co.shape[0]):
             unique_stars=np.asarray(np.where(np.equal(unique_co[i], co_all).all(axis=1)))
             indices.append(unique_stars)
 
+        #group posterior arrays with same CO intensity together and store them in a list
         unique_post = []
         for i in range(unique_co.shape[0]):
             unique_post.append(post_all[indices[i],:,:][0])
 
-        #package and return data
-        ldata=(unique_co,indices,unique_post,ratio)
-        pdata=(np.asarray(bounds,dtype='f'))
-        print("Total number of stars used in analysis:", nstars_all)
-        return ldata,pdata
+        print("Total number of stars used in analysis:", nstars)
 
+        #save arrays to files, so they can then be read back in as global variables in the globalvars module
+        np.savez("unique_post", unique_post)
+        np.save("unique_co", np.array(unique_co))
+        
 def get_nstars(fnames):
     """
     returns: total number of stars in all files
@@ -92,6 +99,7 @@ def get_nstars(fnames):
         return nstars
 
     else:
+
         nstars_all=0
 
         for file in fnames:
