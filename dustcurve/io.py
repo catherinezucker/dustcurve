@@ -1,4 +1,5 @@
 from dustcurve import pixclass
+from dustcurve import globalvars
 import numpy as np
 import multiprocessing
 import ctypes
@@ -8,7 +9,7 @@ from multiprocessing.sharedctypes import Array
 
 nslices=6
 
-def fetch_args(fnames):
+def fetch_args(fnames, dname):
     """
     returns: ldata= the likelihood arguments for running emcee's PTSampler ("loglargs")
              pdata= the prior arguments for running emcee's PTSampler ("logpargs")
@@ -21,7 +22,7 @@ def fetch_args(fnames):
     """
     #one healpix pixel
     if isinstance(fnames, str)==True:
-        pixObj=pixclass.PixStars('/n/fink1/czucker/Data/' + fnames)
+        pixObj=pixclass.PixStars(globalvars.path + fnames)
         co_array=np.asarray(pixObj.get_co()[:,:])
         post_array=np.asarray(pixObj.get_p()[:,:,:])
         nstars=pixObj.get_n_stars()
@@ -44,8 +45,8 @@ def fetch_args(fnames):
         print("Total number of stars used in analysis:", nstars)
 
         #save arrays to files, so they can then be read back in as global variables in the globalvars module
-        np.savez("unique_post", unique_post)
-        np.save("unique_co", np.array(unique_co))
+        np.savez(globalvars.path+dname+"unique_post", unique_post)
+        np.save(globalvars.path+dname+"unique_co", np.array(unique_co))
 
     #several healpix pixels
     else:
@@ -54,7 +55,7 @@ def fetch_args(fnames):
         nstars_all=0
 
         for file in fnames:
-            pixObj=pixclass.PixStars('/n/fink1/czucker/Data/'+file)
+            pixObj=pixclass.PixStars(globalvars.path+file)
             co_array=np.asarray(pixObj.get_co()[:,:])
             post_array=np.asarray(pixObj.get_p()[:,:,:])
             nstars=pixObj.get_n_stars()
@@ -82,8 +83,8 @@ def fetch_args(fnames):
         print("Total number of stars used in analysis:", nstars)
 
         #save arrays to files, so they can then be read back in as global variables in the globalvars module
-        np.savez("unique_post", unique_post)
-        np.save("unique_co", np.array(unique_co))
+        np.savez(globalvars.path+dname+"unique_post", unique_post)
+        np.save(globalvars.path+dname+"unique_co", np.array(unique_co))
         
 def get_nstars(fnames):
     """
@@ -93,7 +94,7 @@ def get_nstars(fnames):
 
     """
     if len(fnames)==1:
-        pixObj=pixclass.PixStars('/n/fink1/czucker/Data/' + fnames)
+        pixObj=pixclass.PixStars(globalvars.path + fnames)
         nstars=pixObj.get_n_stars()
         print("Total number of stars used in analysis:", n_stars)
         return nstars
@@ -103,7 +104,7 @@ def get_nstars(fnames):
         nstars_all=0
 
         for file in fnames:
-            pixObj=pixclass.PixStars('/n/fink1/czucker/Data/'+file)
+            pixObj=pixclass.PixStars(globalvars.path+file)
             nstars=pixObj.get_n_stars()
             nstars_all+=nstars
 

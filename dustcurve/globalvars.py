@@ -1,4 +1,10 @@
 import numpy as np
 
-unique_co=np.load("/n/fink1/czucker/Data/unique_co.npy")
-unique_post=np.load("/n/fink1/czucker/Data/unique_post.npy")
+path = '/n/fink1/sportillo/dustcurve/Data/'
+
+unique_co = {}
+unique_post = {}
+
+def setup(dname):
+	unique_co[dname] = np.load(path+dname+'unique_co.npy')
+	unique_post[dname] = np.load(path+dname+'unique_post.npz')['arr_0']
