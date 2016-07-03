@@ -8,7 +8,7 @@ from dustcurve import globalvars as gv
 dmin, dmu=(4.0, 0.125)
 rmin, dr=(0.0, 0.01)
 
-def get_line_integral(num_batch,dist_array,coeff_array,order):
+def get_line_integral(num_batch,dist_array,coeff_array,order,dname):
     """
     returns line integral over stellar posterior for individual star
 
@@ -25,10 +25,10 @@ def get_line_integral(num_batch,dist_array,coeff_array,order):
 
     #convert co intensities to cumulative reddenings using gas-to-dust coefficients and then clip array according to reddening bounds on stellar posterior arrays
     #convert cumulative reddenings to cumulative reddening bin indices
-    redbins=np.divide(np.subtract(np.cumsum(np.multiply(gv.unique_co[num_batch][order],coeff_array)).clip(min=0,max=6.99),rmin), dr).astype(int)
+    redbins=np.divide(np.subtract(np.cumsum(np.multiply(gv.unique_co[dname][num_batch][order],coeff_array)).clip(min=0,max=6.99),rmin), dr).astype(int)
 
     #extract reddening profile along each array; creates 2D array of size nstarsx120 where nstars is the number of stars in the CO pixel
-    flat_unique_post=gv.unique_post[num_batch]
+    flat_unique_post=gv.unique_post[dname][num_batch]
 
     #return an array of likelihoods for the batch of stars with a unique set of CO intensities; this is "L_good" in the context of mixture model
     unique_likelihoods=np.sum(flat_unique_post[:,np.repeat(np.insert(redbins,0,0),np.ediff1d(dbins,to_end=120-dbins[-1],to_begin=dbins[0])),np.arange(0,120)],axis=1)
@@ -56,7 +56,7 @@ def log_prior(theta,bounds):
     else:
         return np.sum(-1*(np.log(theta[int(len(theta)/2):])**2)/(2*bounds[2]**2))
 
-def log_likelihood(theta,ratio):
+def log_likelihood(theta,ratio,dname):
     """
     returns log of likelihood for all the stars in a single pixel
 
@@ -75,10 +75,10 @@ def log_likelihood(theta,ratio):
     order=np.argsort(dist_array)
     dist_array=dist_array[order]
     coeff_array=coeff_array[order]
-    num_batches=np.arange(0,gv.unique_co.shape[0])
+    num_batches=np.arange(0,gv.unique_co[dname].shape[0])
 
     #construct an array holding the likelihood probability for each individual star and return the sum of the log likelihoods for all the stars
-    return (np.sum(np.array(v_get_line_integral(num_batches,dist_array,coeff_array,order))))
+    return (np.sum(np.array(v_get_line_integral(num_batches,dist_array,coeff_array,order,dname))))
 
 def log_posterior(theta,co_array,post_array,bounds,ratio):
     """
