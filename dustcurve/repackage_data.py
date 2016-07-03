@@ -8,10 +8,10 @@ import numpy as np
 import healpy as hp
 import h5py
 
-nslices=12
+nslices=6
 
 #read in spectral cube
-cube=SpectralCube.read('Cepheus_hires.fits')
+cube=SpectralCube.read('Cepheus_6slice.fits')
 cube_data=np.asarray(cube)
 dl=0.125 #change in longitude per spectral cube pixel
 db=0.125 #change in latitude per spectral cube pixel 
@@ -29,7 +29,7 @@ def get_co_array(l,b):
 def repackage(index,nside=128):
  
     pdf_array=np.empty((0,700,120))
-    co_array=np.empty((0,12))
+    co_array=np.empty((0,nslices))
     coord_array=np.empty((0,2))
 
     #save all the h5 files in the directory to an array
