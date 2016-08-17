@@ -22,11 +22,10 @@ def get_pix_integers(pixstr):
 def repackage(index,nside=128):
 
     #open up Perseus CO and HI data files
-    w_co=WCS("/n/home12/czucker/dustcurve/Perseus_CO_Moment0.fits")
-    w_h1=WCS("/n/home12/czucker/dustcurve/Perseus_HI_Moment0.fits")
+    w=WCS("/n/fink1/czucker/Perseus_Coordinates_Final.fits")
 
-    co_data=fits.getdata("/n/home12/czucker/dustcurve/Perseus_CO_Final.fits")
-    h1_data=fits.getdata("/n/home12/czucker/dustcurve/Perseus_CO_Final.fits")
+    co_data=fits.getdata("/n/fink1/czucker/DAME_slab_Jul21.fits")
+    h1_data=fits.getdata("/n/fink1/czucker/GALFA_slab_Jul21.fits")
  
     pdf_array=np.empty((0,700,120))
     co_array=np.empty((0,nslices))
@@ -41,8 +40,6 @@ def repackage(index,nside=128):
 
     #iterate over each file        
     for file in filelist:
-
-        print('file',file)
         
         #save name of all the pixels in the h5 file to an array
         f=h5py.File("/n/fink1/czucker/bayestar/output/"+file)
@@ -81,24 +78,22 @@ def repackage(index,nside=128):
                 l,b=(fin['photometry/' + pix_str]['l'][:][good_stars], fin['photometry/' + pix_str]['b'][:][good_stars])
                 coord_array=np.vstack((coord_array, np.vstack((l,b)).T))
                 
-                #grab the CO intensity values of the stars given their precise l,b coordinates
-                px_co,py_co=w_co.wcs_world2pix(l, b, 1)
-                co_array=np.vstack((co_array,co_data[:,py_co.astype(int),px_co.astype(int)].T)) #axis order is vel, lat, lon
+                #grab the CO and HI intensity values of the stars given their precise l,b coordinates
+                #HI file has been convolved/regridded to CO resolution/grid so the physical coords are same for both
+                px,py=w.wcs_world2pix(l,b,1)
 
-                #for k in range(0,l.shape[0]):
-                #    co_array=np.vstack((co_array, get_co_array(l[k],b[k])))
+                co_array=np.vstack((co_array,co_data[:,py.astype(int),px.astype(int)].T)) #axis order is vel, lat, lon
+                h1_array=np.vstack((h1_array,h1_data[:,py.astype(int),px.astype(int)].T))
 
-                #grab the HI intensity values of the stars given their precisde l,b coordinates
-                #first convert l,b to ra, dec because that's what GALFA understands
-                galcoord=SkyCoord(l=l*u.degree, b=b*u.degree,frame='galactic')
-                fk5coord=galcoord.transform_to("fk5")
-                px_h1, py_h1=w_h1.wcs_world2pix(fk5coord.ra,fk5coord.dec,1)
-                h1_array=np.vstack((h1_array,h1_data[:,py_h1.astype(int),px_h1.astype(int)].T))
                 fin.close()
                 
         f.close()
                 
+
     nstars=pdf_array[:,0,0].shape[0]
+
+    print(nstars,pdf_array.shape,co_array.shape,h1_array.shape,coord_array.shape)
+
     #write out all the packaged data into a new h5 file                    
     fwrite = h5py.File("/n/fink1/czucker/Data/"+str(index)+ ".h5", "w")
 
@@ -114,7 +109,6 @@ def repackage(index,nside=128):
     coord_data = fwrite.create_dataset("/coord_data", (nstars,2), dtype='f')
     coord_data[:,:]=coord_array
 
-    print(nstars,pdf_array.shape,co_array.shape,h1_array.shape)
     
     fwrite.close()
                 
