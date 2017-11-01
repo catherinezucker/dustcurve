@@ -6,10 +6,9 @@ import ctypes
 import sys
 import mmap
 from multiprocessing.sharedctypes import Array
+from astropy.io import fits
 
-nslices=6
-
-def fetch_args(fnames, dname):
+def fetch_args(fnames, dname, nslices,region):
     """
     returns: ldata= the likelihood arguments for running emcee's PTSampler ("loglargs")
              pdata= the prior arguments for running emcee's PTSampler ("logpargs")
@@ -20,12 +19,23 @@ def fetch_args(fnames, dname):
         ratio: the gas-to-dust conversion coefficient you'd like to adopt (a float)
 
     """
+
+    #noise_threshold=fits.getheader('/n/fink2/czucker/CO_Input/Downsampled_'+region+'.fits')['CDELT3']*0.35/0.06350219
+
     #one healpix pixel
     if isinstance(fnames, str)==True:
         pixObj=pixclass.PixStars(globalvars.path + fnames)
         co_array=np.asarray(pixObj.get_co()[:,:])
         post_array=np.asarray(pixObj.get_p()[:,:,:])
+        coords_array=np.asarray(pixObj.get_coords()[:,:])
         nstars=pixObj.get_n_stars()
+
+        #mask out pixels with negative CO
+        #pos_co=np.any(np.isfinite(co_array)==False,axis=1)
+        #pos_co=np.array(np.sum(co_array,axis=1) < -999)
+        #co_array=co_array[pos_co]
+        #post_array=post_array[pos_co]
+        #coords_array=coords_array[pos_co]
 
         #find unique co intensity arrays
         sorted_co = co_array[np.lexsort(co_array.T)]
@@ -42,25 +52,40 @@ def fetch_args(fnames, dname):
         for i in range(unique_co.shape[0]):
             unique_post.append(post_array[indices[i],:,:][0])
 
+        unique_coords=[]
+        for i in range(unique_co.shape[0]):
+            unique_coords.append(coords_array[indices[i],:][0])
+
         print("Total number of stars used in analysis:", nstars)
+        #print("Total stars={}, masked stars={}, final star count={}".format(nstars,nstars-co_array.shape[0],co_array.shape[0]))
 
         #save arrays to files, so they can then be read back in as global variables in the globalvars module
-        np.savez(globalvars.path+dname+"unique_post", unique_post)
-        np.save(globalvars.path+dname+"unique_co", np.array(unique_co))
+        np.savez(globalvars.path+dname+"_unique_post", unique_post)
+        np.save(globalvars.path+dname+"_unique_co", np.array(unique_co))
+        np.savez(globalvars.path+dname+"_unique_coords",unique_coords)
 
     #several healpix pixels
     else:
         co_all=np.empty((0,nslices))
-        post_all=np.empty((0,700,120))
+        post_all=np.empty((0,700,240))
+        coords_all=np.empty((0,2))
         nstars_all=0
 
         for file in fnames:
             pixObj=pixclass.PixStars(globalvars.path+file)
             co_array=np.asarray(pixObj.get_co()[:,:])
             post_array=np.asarray(pixObj.get_p()[:,:,:])
+            coords_array=np.asarray(pixObj.get_coords()[:,:])
             nstars=pixObj.get_n_stars()
 
+            #pos_co=~np.any(co_array<noise_threshold,axis=1)
+            #pos_co=~np.array(np.sum(co_array,axis=1) < -999)
+            #co_array=co_array[pos_co]
+            #post_array=post_array[pos_co]
+            #coords_array=coords_array[pos_co]
+
             co_all=np.vstack((co_all,co_array))
+            coords_all=np.vstack((coords_all,coords_array))
             post_all=np.vstack((post_all,post_array))
             nstars_all+=nstars
         
@@ -80,11 +105,18 @@ def fetch_args(fnames, dname):
         for i in range(unique_co.shape[0]):
             unique_post.append(post_all[indices[i],:,:][0])
 
-        print("Total number of stars used in analysis:", nstars)
+       #group posterior arrays with same CO intensity together and store them in a list
+        unique_coords = []
+        for i in range(unique_co.shape[0]):
+            unique_coords.append(coords_all[indices[i],:][0])
+
+        print("Total number of stars used in analysis:", nstars_all)
+        #print("Total stars={}, masked stars={}, final star count={}".format(nstars_all,nstars_all-co_all.shape[0],co_all.shape[0]))
 
         #save arrays to files, so they can then be read back in as global variables in the globalvars module
-        np.savez(globalvars.path+dname+"unique_post", unique_post)
-        np.save(globalvars.path+dname+"unique_co", np.array(unique_co))
+        np.savez(globalvars.path+dname+"_unique_post", unique_post)
+        np.save(globalvars.path+dname+"_unique_co", np.array(unique_co))
+        np.savez(globalvars.path+dname+"_unique_coords",unique_coords)
         
 def get_nstars(fnames):
     """
