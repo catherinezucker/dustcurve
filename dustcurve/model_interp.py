@@ -20,18 +20,21 @@ def get_line_integral(num_batch,dbins,redbins,p_b,dname):
         coeff_array: array of dust-to-gas coefficients for the slices from MCMC
     """
 
-    #extract reddening profile along each array; creates 2D array of size nstarsx120 where nstars is the number of stars in the CO pixel
-    flat_unique_post=gv.unique_post[dname][num_batch]
+    dinterp=np.hstack((0,np.repeat(dbins,2),120))
+    redinterp=np.repeat((np.hstack((0,redbins[num_batch,:]))),2)
 
-    #return an array of likelihoods for the batch of stars with a unique set of CO intensities; this is "L_good" in the context of mixture model
-    unique_likelihoods=np.sum(flat_unique_post[:,np.repeat(np.insert(redbins[num_batch,:],0,0),np.ediff1d(dbins,to_end=dbin_num-dbins[-1],to_begin=dbins[0])),np.arange(0,dbin_num)],axis=1)
+    indiv_l=gv.interp_func_arr[dname][num_batch](np.vstack((redinterp[1::2],dinterp[1::2])).T)-gv.interp_func_arr[dname][num_batch](np.vstack((redinterp[0::2],dinterp[0::2])).T)
 
-    #mixture model: L_total=P_b*L_bad + (1-P_b)*L_good w/P_b=10^-3, L_bad=1/N_E=1/700
-    total_likelihoods=flat_unique_post.shape[0]*((p_b)/700.0) + (1.0-p_b)*unique_likelihoods
+    indiv_l=np.sum(indiv_l)
 
-    #return total log-likelihood for all stars in this batch
-    #mixture model: L_total=P_b*L_bad + (1-P_b)*L_good w/P_b=10^-3, L_bad=1/N_E=1/700
-    return np.sum(np.log(total_likelihoods))
+    final_indiv_l=(p_b/700.) + (1-p_b)*indiv_l
+
+    if np.isfinite(final_indiv_l)==False:
+        return -999.9
+    
+    else:
+        return (np.log(final_indiv_l))
+
 
 def log_prior(theta,bounds,nslices):
     """
@@ -71,20 +74,20 @@ def log_likelihood(theta,ratio,dname,nslices):
 
     #sort distances in ascending order and sort the coefficient array+co array by this order
     order=np.argsort(theta[3:nslices+3])
-    num_batches=np.arange(0,gv.unique_co[dname].shape[0])
+    num_batches=np.arange(0,gv.raw_co[dname].shape[0])
     
     ordered_dist_arr=np.hstack((theta[0],theta[3:nslices+3][order]))
 
-    co_arr=gv.unique_co[dname][:,order]
+    co_arr=gv.raw_co[dname][:,order]
     coeff_arr=theta[nslices+3:][order]*ratio
     ordered_reddening_arr=np.hstack((np.array(np.ones(co_arr.shape[0])*theta[1]).reshape(-1,1),np.multiply(co_arr,coeff_arr[:,np.newaxis].T)))
 
     #convert actual distance to a distance bin in the stellar posterior array
-    dbins=np.array((ordered_dist_arr-dmin)/dmu).astype(int)
+    dbins=np.array((ordered_dist_arr-dmin)/dmu)
     
     #convert co intensities to cumulative reddenings using gas-to-dust coefficients and then clip array according to reddening bounds on stellar posterior arrays
     #also convert cumulative reddenings to cumulative reddening bin indices
-    redbins=np.array((np.cumsum(ordered_reddening_arr,axis=1).clip(min=0,max=6.99))/dr).astype(int)
+    redbins=np.array((np.cumsum(ordered_reddening_arr,axis=1).clip(min=0,max=6.99))/dr)
     
     #construct an array holding the likelihood probability for each individual star and return the sum of the log likelihoods for all the stars
     return (np.sum(np.array(v_get_line_integral(num_batches,dbins,redbins,theta[2],dname))))
